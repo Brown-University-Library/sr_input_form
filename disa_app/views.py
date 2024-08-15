@@ -394,7 +394,7 @@ def data_reference_group( request, incoming_uuid=None ):
     # log.debug( f'request.__dict__, ``{pprint.pformat(request.__dict__)}``' )
     start_time = datetime.datetime.now()
     request_url = '%s://%s%s' % (
-        request.scheme, request.META.get('HTTP_HOST', '127.0.0.1'), request.META.get('REQUEST_URI', request.META['PATH_INFO']) )  # some info not available from client-test
+        request.scheme, request.headers.get('host', '127.0.0.1'), request.META.get('REQUEST_URI', request.META['PATH_INFO']) )  # some info not available from client-test
     assert type(incoming_uuid) == str
     log.debug( f'incoming_uuid, ```{incoming_uuid}```' )
     log.debug( f'request.method, ```{request.method}```' )
@@ -890,7 +890,7 @@ def redesign_citations( request ):
         context['elapsed_time'] = str( datetime.datetime.now() - start_time )
     else:
         context = {}  # no data needed just to load the html-template -- which has javascript that will load the json``
-    context['API_URL_ROOT'] = '%s://%s%s' % ( request.scheme, request.META.get('HTTP_HOST', '127.0.0.1'), reverse('data_root_url') )
+    context['API_URL_ROOT'] = '%s://%s%s' % ( request.scheme, request.headers.get('host', '127.0.0.1'), reverse('data_root_url') )
     if request.user.is_authenticated:
         context['user_is_authenticated'] = True
         context['user_first_name'] = request.user.first_name
@@ -938,7 +938,7 @@ def redesign_citation( request, cite_id=None ):
         return HttpResponseNotFound( '404 / Not Found' )
 
     # context: dict = view_edit_citation_manager.redesign_query_data( cite_id )
-    ( scheme, host ) = ( request.scheme, request.META.get('HTTP_HOST', '127.0.0.1') )
+    ( scheme, host ) = ( request.scheme, request.headers.get('host', '127.0.0.1') )
     assert type(scheme) == str
     assert type(host) == str
     context: dict = view_edit_citation_manager.redesign_query_data( cite_id, scheme, host )

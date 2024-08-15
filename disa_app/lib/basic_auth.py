@@ -13,7 +13,7 @@ class BasicAuthHelper( object ):
             Called by views.try_again() """
         # ( GOOD_USER, GOOD_PASSWORD ) = ( unicode(os.environ['EZSCAN__BASIC_AUTH_USERNAME']), unicode(os.environ['EZSCAN__BASIC_AUTH_PASSWORD']) )
         basic_auth_ok = False
-        auth_info = request.META.get( 'HTTP_AUTHORIZATION', None )
+        auth_info = request.headers.get( 'authorization', None )
         if ( auth_info and auth_info.startswith('Basic ') ):
             basic_info = auth_info.lstrip( 'Basic ' )
             decoded_basic_bytes = base64.b64decode( basic_info )

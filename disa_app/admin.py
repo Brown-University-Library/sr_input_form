@@ -37,12 +37,14 @@ class MarkedForDeletionAdminForm(ModelForm):
         return patron_json_data
 
 
+@admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = [ 'id', 'user', 'uu_id', 'email', 'old_db_id', 'last_logged_in' ]
     readonly_fields = [ 'uu_id', 'last_logged_in' ]
     search_fields = [ 'uu_id', 'email', 'old_db_id' ]
 
 
+@admin.register(MarkedForDeletion)
 class MarkedForDeletionAdmin(admin.ModelAdmin):
     list_display = [ 'old_db_id', 'doc_uu_id', 'doc_json_data', 'patron_json_data', 'create_date' ]
     search_fields = [ 'old_db_id', 'doc_uu_id', 'doc_json_data', 'patron_json_data' ]
@@ -50,5 +52,3 @@ class MarkedForDeletionAdmin(admin.ModelAdmin):
     form = MarkedForDeletionAdminForm
 
 
-admin.site.register( UserProfile, UserProfileAdmin )
-admin.site.register( MarkedForDeletion, MarkedForDeletionAdmin )

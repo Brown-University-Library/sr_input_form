@@ -49,7 +49,7 @@ def make_context( request, rq_now, info_txt, taken ):
     cntxt = {
         'request': {
             'url': '%s://%s%s' % ( request.scheme,
-                request.META.get( 'HTTP_HOST', '127.0.0.1' ),  # HTTP_HOST doesn't exist for client-tests
+                request.headers.get( 'host', '127.0.0.1' ),  # HTTP_HOST doesn't exist for client-tests
                 request.META.get('REQUEST_URI', request.META['PATH_INFO'])
                 ),
             'timestamp': str( rq_now )
