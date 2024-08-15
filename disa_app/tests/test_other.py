@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json, logging, pathlib, pprint, uuid
+from io import StringIO
 
 import requests
 from disa_app import settings_app
@@ -8,6 +9,7 @@ from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.urls import reverse
 from django.test import Client
 from django.test import TestCase  # from django.test import SimpleTestCase as TestCase    ## TestCase requires db, so if you're not using a db, and want tests, try this
@@ -213,3 +215,16 @@ class DockerTest( TestCase ):
                     self.assertTrue( req_filepath_to_test.exists(), failure_message )
                     log.debug( 'test passed' )
                         
+
+class PendingMigrationsTests(TestCase):
+    def test_no_pending_migrations(self):
+        out = StringIO()
+        try:
+            call_command(
+                "makemigrations",
+                "--check",
+                stdout=out,
+                stderr=StringIO(),
+            )
+        except SystemExit:  # pragma: no cover
+            raise AssertionError("Pending migrations:\n" + out.getvalue()) from None
