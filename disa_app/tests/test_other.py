@@ -217,6 +217,9 @@ class DockerTest( TestCase ):
                         
 
 class PendingMigrationsTests(TestCase):
+    """ Django upgrades and result in pending migrations that are easy to miss.
+        Checks that there are no pending migrations. 
+        Test from <from django.core.management import call_command>"""
     def test_no_pending_migrations(self):
         out = StringIO()
         try:
