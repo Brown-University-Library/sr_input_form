@@ -6,6 +6,8 @@
 #
 asgiref==3.8.1
     # via django
+backports-zoneinfo==0.2.1
+    # via django
 build==1.2.1
     # via pip-tools
 certifi==2024.7.4
@@ -14,7 +16,7 @@ charset-normalizer==2.0.12
     # via requests
 click==8.1.7
     # via pip-tools
-django==3.2.25
+django==4.2.15
     # via -r ./config/requirements_base.in
 idna==3.7
     # via requests
@@ -28,8 +30,6 @@ pyproject-hooks==1.1.0
     # via
     #   build
     #   pip-tools
-pytz==2024.1
-    # via django
 requests==2.27.1
     # via -r ./config/requirements_base.in
 shellvars-py @ git+https://github.com/birkin/shellvars-py.git
