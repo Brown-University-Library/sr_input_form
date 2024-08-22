@@ -85,7 +85,7 @@
         </div>
         <div class="citation-field form-floating" id="publicationTitle">
             <input type="text" class="form-control" id="publicationTitle-value" name="publicationTitle-value" aria-label="Publication Title" placeholder="Publication Title" v-model="formData.doc.fields.publicationTitle" v-on:blur="saveSourceToServer">
-            <label for="publicationTitle-value">Publication Title</label>
+            <label for="publicationTitle-value">Published in</label>
         </div>
         <div class="citation-field form-floating" id="publisher">
             <input type="text" class="form-control" id="publisher-value" name="publisher-value" aria-label="Publisher" placeholder="Publisher" v-model="formData.doc.fields.publisher" v-on:blur="saveSourceToServer">
@@ -95,10 +95,6 @@
             <!-- @todo DROPDOWN? -->
             <input type="text" class="form-control" id="rights-value" name="rights-value" aria-label="Rights" placeholder="Rights" v-model="formData.doc.fields.rights" v-on:blur="saveSourceToServer">
             <label for="rights-value">Rights</label>
-        </div>
-        <div class="citation-field form-floating" id="section">
-            <input type="text" class="form-control" id="section-value" name="section-value" aria-label="Section" placeholder="Section" v-model="formData.doc.fields.section" v-on:blur="saveSourceToServer">
-            <label for="section-value">Section</label>
         </div>
         <div class="citation-field form-floating" id="series">
             <input type="text" class="form-control" id="series-value" name="series-value" aria-label="Series" placeholder="Series" v-model="formData.doc.fields.series" v-on:blur="saveSourceToServer">
