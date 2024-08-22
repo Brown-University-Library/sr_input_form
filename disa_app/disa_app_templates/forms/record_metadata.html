@@ -13,6 +13,19 @@
             <label for="formInputDISAItemType">Record type</label>
         </div>
     </div>
+    <!-- Volume & pages -->
+    <div class="col-sm-2">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="formInputDISAItemVolume" aria-label="Record volume" placeholder="Volume" v-model="currentItem.citation_fields.z105" v-on:blur="saveItemDataToServer">
+            <label for="formInputDISAItemVolume">Volume</label>
+        </div>
+    </div>
+    <div class="col-sm-2">
+        <div class="form-floating">
+            <input type="text" class="form-control" id="formInputDISAItemPages" aria-label="Record pages" placeholder="Pages" v-model="currentItem.citation_fields.z67" v-on:blur="saveItemDataToServer">
+            <label for="formInputDISAItemPages">Page(s)</label>
+        </div>
+    </div>
     <!-- Image URL -->
     <div class="col-md">
         <div class="form-floating">

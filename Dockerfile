@@ -16,5 +16,5 @@ RUN mkdir /sr_project_stuff/logs
 RUN mkdir /sr_project_stuff/DBs
 
 ## set up the python environment
-COPY ./config/requirements.txt /sr_project_stuff/code/
-RUN pip install -r ./requirements.txt  
+COPY ./config/requirements_local.txt /sr_project_stuff/code/
+RUN pip install -r ./requirements_local.txt  

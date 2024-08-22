@@ -56,6 +56,8 @@ def query_record( rec_id: str, db_session: AlchSession ) -> dict:
         'value': rec.reference_type.name,
         'id':rec.reference_type.id }
 
+    data['rec']['citation_fields'] = { str(f.field_id): f.field_data for f in rec.citation_fields }
+
     data['entrants'] = [ {
         'name_id': ent.primary_name.id,
         'first': ent.primary_name.first,
@@ -117,6 +119,22 @@ def manage_reference_put( rec_id: str, payload: bytes, request_user_id: int, db_
         rfrnc.reference_type_id = reference_type.id
         rfrnc.national_context_id = data['national_context']
         rfrnc.transcription = data['transcription']
+
+        # Add Record-level citation fields
+        # Delete old ones, then add new ones from incoming form data
+
+        session.query(models_alch.ReferenceCitationField).filter_by(reference_id=rec_id).delete()
+
+        citation_entries = []
+        for field_id, field_data in data['record_citation_fields'].items():            
+            citation_entries.append(models_alch.ReferenceCitationField(
+                reference_id=int(rec_id),
+                field_id=int(field_id),
+                field_data=field_data
+            ))
+
+        session.bulk_save_objects(citation_entries)
+
         rfrnc.researcher_notes = data['researcher_notes']
 
         if 'image_url' in data.keys():
@@ -145,9 +163,6 @@ def manage_reference_put( rec_id: str, payload: bytes, request_user_id: int, db_
                 'id': l.location.id } for l in rfrnc.locations ]
         data['rec']['record_type'] = {'label': rfrnc.reference_type.name,
             'value': rfrnc.reference_type.name, 'id':rfrnc.reference_type.id }
-
-        # context =  { 'redirect': reverse( 'edit_record_url', kwargs={'rec_id': rfrnc.id} ) }
-        # log.debug( f'data, ```{data}```' )
         log.debug( f'data, ```{pprint.pformat(data)}```' )
     except:
         log.exception( '\n\nexception...' )

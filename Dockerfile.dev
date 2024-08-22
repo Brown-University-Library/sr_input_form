@@ -16,8 +16,8 @@ RUN mkdir /sr_project_stuff/logs
 RUN mkdir /sr_project_stuff/DBs
 
 ## set up the python environment
-COPY ./config/requirements.txt /sr_project_stuff/code/
-RUN pip install -r ./requirements.txt  
+COPY ./config/requirements_local.txt /sr_project_stuff/code/
+RUN pip install -r ./requirements_local.txt  
 
 ## set up SSH access per <https://dev.to/alvarocavalcanti/setting-up-a-python-remote-interpreter-using-docker-1i24>
 RUN apt-get update \

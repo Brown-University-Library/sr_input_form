@@ -203,6 +203,10 @@ function preprocessItemData(itemData, oldItemData, relationshipsData, referentDa
     groups: itemData.groups.group_data,
     transcription: 'IGNORE ME', // itemData.rec.transcription,
     image_url: itemData.rec.image_url,
+    // Citation field IDs (which are integers) need to be prefixed with
+    //  a letter for Vue to accept them (I chose 'z' for 'zotero')
+    citation_fields: Object.entries(itemData.rec.citation_fields)
+        .reduce((acc, [key, value]) => { acc['z' + key] = value; return acc }, {}),
     researcher_notes: itemData.rec.researcher_notes,
 
     // I have no idea why this works -- without these properties being inside of a

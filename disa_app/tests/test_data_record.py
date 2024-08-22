@@ -189,7 +189,7 @@ class Record_Test( TestCase ):
             sorted(resp_dct.keys()) )
         record_keys = sorted( resp_dct['rec'].keys() )
         self.assertEqual(
-            ['date', 'header', 'id', 'image_url', 'locations', 'national_context', 'record_type', 'researcher_notes', 'transcription'],
+            ['citation_fields', 'date', 'header', 'id', 'image_url', 'locations', 'national_context', 'record_type', 'researcher_notes', 'transcription'],
             record_keys )
         if self.random_new_record_date:
             date_object = datetime.datetime.strptime( self.random_new_record_date, '%m/%d/%Y')
@@ -292,8 +292,8 @@ class Record_Test( TestCase ):
             'national_context': self.random_put_national_context,
             'record_type': self.random_put_record_type,
             'transcription': self.random_put_transcription,
-            'researcher_notes': self.random_put_researcher_notes
-
+            'researcher_notes': self.random_put_researcher_notes,
+            'record_citation_fields': { '67': 'test-1', '105': 'test-2' }
             }
         jsn = json.dumps( put_payload )
         put_response = self.client.put( put_url, data=jsn, content_type='application/json' )
