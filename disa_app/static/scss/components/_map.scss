@@ -1,0 +1,17 @@
+.leaflet-control-layers-overlays {
+  input[type="checkbox"] {
+    opacity: 0;
+  }
+
+  input[type="checkbox"] + span {
+    border: solid 1px $primary;
+    padding: 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.5s ease;
+  }
+  input[type="checkbox"]:checked + span {
+    background-color: $primary;
+    color: white;
+  }
+}

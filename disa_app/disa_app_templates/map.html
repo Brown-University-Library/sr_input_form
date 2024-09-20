@@ -8,6 +8,8 @@
 {% endblock header_other %}
 {% block content %}
 <div class="alert alert-danger my-2"><i class="fa-solid fa-bell"></i> Please note: the information in this map is not complete. It is under active development.</div>
+<div id="freedom-controls"></div>
+<div id="dates-controls"></div>
 <div id="map-container" style="height:80vh" class="my-2"></div>
 {% endblock content %}
 {% block page_specific_js %}
@@ -15,8 +17,10 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/leaflet-extras/leaflet-providers/leaflet-providers.js"></script>
 <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/calvinmetcalf/leaflet-ajax@2/dist/leaflet.ajax.js"></script>
+<script type="text/javascript" src="https://unpkg.com/leaflet.featuregroup.subgroup@1.0.2/dist/leaflet.featuregroup.subgroup.js"></script>
 <script type="text/javascript">
-    var leaflet_data_url = "{% static 'data/SR_geo.json' %}";
+var leaflet_data_url = "{% static 'data/SR_geo.json' %}";
+
 </script>
 <script src="{% static 'js/map.js' %}" type="module"></script>
 {% endblock page_specific_js %}
