@@ -42,11 +42,13 @@ var mcg = L.markerClusterGroup({
         maxClusterRadius: 30
     }),
     unfree = L.featureGroup.subGroup(mcg),
-    free = L.featureGroup.subGroup(mcg);
+    free = L.featureGroup.subGroup(mcg),
+    unmarked = L.featureGroup.subGroup(mcg);
 mcg.addTo(map);
 // Adding to map now adds all child layers into the parent group.
 free.addTo(map);
 unfree.addTo(map);
+unmarked.addTo(map);
 
 // fetch the geojson
 var geoJsonData = new L.GeoJSON.AJAX(
@@ -68,15 +70,17 @@ var geoJsonData = new L.GeoJSON.AJAX(
             }
             var lat = feature.properties.lat;
             var lng = feature.properties.lon;
-            var person_location = feature.properties.from.toString();
+            var person_location = feature.properties.from;
 
-            var popupText = person_name + '<br />' + person_location + '<br />' + person_date;
+            var popupText = person_name + '<br />' + person_location + ', ' + person_date;
             layer.bindPopup(popupText);
             // add to the appropriate subgroup for dynamic filtering
             if (status.startsWith("free")) {
                 layer.addTo(free)
-            } else {
+            } else if (status.startsWith("unfree")) {
                 layer.addTo(unfree)
+            } else {
+                layer.addTo(unmarked)
             }
         }
 
@@ -99,7 +103,7 @@ mcg.on('clustermouseover', function(a) {
 });
 let basemapsControl = L.control.layers(basemaps, null, { collapsed: false }).addTo(map);
 let overlayControls = L.control.layers(null, null, { collapsed: false, position: "bottomleft"});
-overlayControls.addOverlay(free, 'Free').addOverlay(unfree, 'Unfree').addTo(map);
+overlayControls.addOverlay(free, 'Free').addOverlay(unfree, 'Unfree').addOverlay(unmarked, 'Status unmarked').addTo(map);
 
 // move the overlaycontrols outside the map for styling etc
 let oldParent = document.getElementsByClassName('leaflet-bottom leaflet-left')
