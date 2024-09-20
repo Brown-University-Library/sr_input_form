@@ -19,15 +19,6 @@ var API_URL_ROOT = "{{ API_URL_ROOT }}", // eg `http://127.0.0.1:8000/data/`` --
 
 </script>
 {% endblock header_other %}
-{% block nav_options %}
-<li class="nav-item"><button class="btn btn-outline-info" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
-        Info
-    </button></li>
-{% endblock nav_options %}
-{% block sidebar %}
-<!-- insert offcanvas info -->
-{% include "modals/info_aside.html" %}
-{% endblock sidebar %}
 <!-- The content-block html below is within the redesign_base.html template's `<main class="container">` element. -->
 {% block content %}
 <!-- JavaScript-savvy URL control to toggle div display between

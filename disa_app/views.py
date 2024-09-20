@@ -112,33 +112,6 @@ def browse_logout( request ):
     log.debug( f'redirect_url, ```{redirect_url}```' )
     return HttpResponseRedirect( redirect_url )
 
-
-def people( request ):
-    log.debug( '\n\nstarting people()' )
-    people: list = view_people_manager.query_people()
-    context = { 'people': people, 'user_is_authenticated': False }
-    if request.user.is_authenticated:
-        context['user_is_authenticated'] = True
-        context['user_first_name'] = request.user.first_name
-    if request.GET.get('format', '') == 'json':
-        resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
-    else:
-        resp = render( request, 'people.html', context )
-    return resp
-
-
-def person( request, prsn_id ):
-    log.debug( f'\n\nstarting person(), with prsn_id, `{prsn_id}`' )
-    context: dict = view_person_manager.query_person( prsn_id )
-    if request.user.is_authenticated:
-        context['user_is_authenticated'] = True
-        context['user_first_name'] = request.user.first_name
-    if request.GET.get('format', '') == 'json':
-        resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
-    else:
-        resp = render( request, 'person_view.html', context )
-    return resp
-
 def map ( request ):
     resp = render( request, 'map.html' )
     return resp

@@ -34,9 +34,6 @@ urlpatterns = [
     url( r'^editor/$', views.editor_index, name='editor_index_url' ),
     url( r'^record/relationships/(?P<rec_id>.*)/$', views.edit_relationships, name='edit_relationships_url' ),
 
-    url( r'^people/$', views.people, name='people_url' ),
-    url( r'^people/(?P<prsn_id>.*)/$', views.person, name='person_url' ),
-
     url( r'^source/(?P<src_id>.*)/$', views.source, name='source_url' ),
 
     url( r'^search_results/$', views.search_results, name='search_results_url' ),
