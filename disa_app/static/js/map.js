@@ -43,12 +43,25 @@ var mcg = L.markerClusterGroup({
     }),
     unfree = L.featureGroup.subGroup(mcg),
     free = L.featureGroup.subGroup(mcg),
-    unmarked = L.featureGroup.subGroup(mcg);
+    unmarked = L.featureGroup.subGroup(mcg),
+
+        // century chunks
+    c16 = L.featureGroup.subGroup(mcg),
+    c17 = L.featureGroup.subGroup(mcg),
+    c18 = L.featureGroup.subGroup(mcg),
+    c19 = L.featureGroup.subGroup(mcg),
+undated = L.featureGroup.subGroup(mcg);
 mcg.addTo(map);
 // Adding to map now adds all child layers into the parent group.
 free.addTo(map);
 unfree.addTo(map);
 unmarked.addTo(map);
+
+c16.addTo(map);
+c17.addTo(map);
+c18.addTo(map);
+c19.addTo(map);
+undated.addTo(map);
 
 // fetch the geojson
 var geoJsonData = new L.GeoJSON.AJAX(
@@ -82,6 +95,16 @@ var geoJsonData = new L.GeoJSON.AJAX(
             } else {
                 layer.addTo(unmarked)
             }
+
+            if (feature.properties.Year <= 1599) {
+                layer.addTo(c16);
+            } else if ((feature.properties.Year >= 1600) && (feature.properties.Year <= 1699)) {
+                layer.addTo(c17);
+            } else if ((feature.properties.Year >= 1700) && (feature.properties.Year <= 1799)) {
+                layer.addTo(c18);
+            } else if ((feature.properties.Year >= 1800) && (feature.properties.Year <= 1900)) {
+                layer.addTo(c19);
+            } else { layer.addTo(undated) }
         }
 
     });
@@ -102,14 +125,18 @@ mcg.on('clustermouseover', function(a) {
     a.layer.bindPopup(clusterPopup);
 });
 let basemapsControl = L.control.layers(basemaps, null, { collapsed: false }).addTo(map);
-let overlayControls = L.control.layers(null, null, { collapsed: false, position: "bottomleft"});
-overlayControls.addOverlay(free, 'Free').addOverlay(unfree, 'Unfree').addOverlay(unmarked, 'Status unmarked').addTo(map);
+let freedomControls = L.control.layers(null, null, { collapsed: false, position: "bottomleft" });
+let datesControls = L.control.layers(null, null, { collapsed: false, position: "bottomleft" });
+freedomControls.addOverlay(unmarked, 'records with weird freedom status').addOverlay(free, 'Free').addOverlay(unfree, 'Unfree').addTo(map);
+datesControls.addOverlay(c16, '1492 - 1599').addOverlay(c17, '1600 - 1699').addOverlay(c18, '1700 - 1799').addOverlay(c19, '1800 - 1900').addTo(map);
+// move the two overlay controls outside the map for styling etc
+// get the parents of the controls, add ids to specify which is which
+let oldfreedomParent = freedomControls.getContainer();
+    oldfreedomParent.setAttribute("id", "freedomControls");
+let olddatesParent = datesControls.getContainer();
+    olddatesParent.setAttribute("id", "datesControls");
+let newfreedomParent = document.getElementById('freedom-controls');
+let newdatesParent = document.getElementById('dates-controls');
 
-// move the overlaycontrols outside the map for styling etc
-let oldParent = document.getElementsByClassName('leaflet-bottom leaflet-left')
-let newParent = document.getElementById('custom-controls');
-
-while (oldParent[0].childNodes.length > 0) {
-    newParent.appendChild(oldParent[0].childNodes[0]);
-}
-
+    newfreedomParent.appendChild(document.getElementById('freedomControls'));
+    newdatesParent.appendChild(document.getElementById('datesControls'));
