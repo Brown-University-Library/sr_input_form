@@ -188,6 +188,7 @@ export const LOCAL_SETTINGS = {
       'free person':'free person',
       'free person ▸ enslaver or owner':'free person ▸ enslaver or owner',
       'free person ▸ formerly unfree':'free person ▸ formerly unfree',
+      'free person ▸ formerly unfree ▸ freedman':'free person ▸ formerly unfree ▸ freedman',
       'free person ▸ formerly unfree ▸ emancipated':'free person ▸ formerly unfree ▸ emancipated',
       'free person ▸ formerly unfree ▸ manumitted':'free person ▸ formerly unfree ▸ manumitted',
       'free person ▸ formerly unfree ▸ self-purchased':'free person ▸ formerly unfree ▸ self-purchased',
