@@ -3,7 +3,7 @@ version: "3.9"
 services:
   db:
     image: mysql:8.0
-    container_name: sr-db
+    container_name: db
     build:
       context: ../sr_dkr_sql-database
       dockerfile: Dockerfile
