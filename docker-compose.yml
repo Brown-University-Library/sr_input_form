@@ -3,24 +3,34 @@ version: "3.9"
 services:
   db:
     image: mysql:8.0
-    container_name: django-mysql-container
+    container_name: sr-db
+    build:
+      context: ../sr_dkr_sql-database
+      dockerfile: Dockerfile
     command: --default-authentication-plugin=mysql_native_password
+    restart: always
     environment:
-      MYSQL_DATABASE: disa_db
-      MYSQL_USER: disa_user
-      MYSQL_PASSWORD: disa_password
-      MYSQL_ROOT_PASSWORD: root_password_change_me
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: stolenrelations
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
     volumes:
-      - db_data:/var/lib/mysql
+      - ../sr_dkr_sql-database/backups:/sr-backups
+    # - db_data:/var/lib/mysql
     # Only needed if you want to connect from your host machine (e.g., local MySQL client).
     ports:
       - "3306:3306"
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-      start_period: 10s
+    healthcheck: # check the healthiness with the following configuration
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      # interval: 30s
+      timeout: 600s
+      retries: 20
+#   healthcheck:
+#     test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+#     interval: 5s
+#     timeout: 3s
+#     retries: 30
+#     start_period: 10s
 
   web:
     build:
