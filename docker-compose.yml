@@ -32,6 +32,15 @@ services:
 #     retries: 30
 #     start_period: 10s
 
+  adminer:
+    image: adminer:latest
+    container_name: sr-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
   web:
     build:
       context: .
