@@ -1,6 +1,27 @@
 version: "3.9"
-   
+
 services:
+  db:
+    image: mysql:8.0
+    container_name: django-mysql-container
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: disa_db
+      MYSQL_USER: disa_user
+      MYSQL_PASSWORD: disa_password
+      MYSQL_ROOT_PASSWORD: root_password_change_me
+    volumes:
+      - db_data:/var/lib/mysql
+    # Only needed if you want to connect from your host machine (e.g., local MySQL client).
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
   web:
     build:
       context: .
@@ -19,17 +40,33 @@ services:
       - DISA_DJ__ENV_SETTINGS_PATH=config/settings_localdev_env.sh
       - PYTHONPATH=/sr_project_stuff
 
+      # Point Django/app to MySQL service name "db"
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=disa_db
+      - DB_USER=disa_user
+      - DB_PASSWORD=disa_password
+
     env_file: ./config/settings_localdev_env.sh
+
+    depends_on:
+      - db
 
     ## copies the starting DBs from the git-cloned start-data if necessary
     ## ...then copies the big json files from the git-cloned start-data if necessary
     ## ...then starts a _background_ process to update the big json files
     ## ...then calls runserver.
     command: /bin/bash -c "
-      if test -f ../DBs/DISA.sqlite; then echo 'DISA.sqlite-file-exists-not-copying'; else cp ../stolen_relations_start_data/DISA.db ../DBs/DISA.sqlite; fi
+      echo 'Waiting for MySQL at db:3306...' \
+      && until (echo > /dev/tcp/db/3306) >/dev/null 2>&1; do sleep 1; done \
+      && echo 'MySQL is up.' \
+      && if test -f ../DBs/DISA.sqlite; then echo 'DISA.sqlite-file-exists-not-copying'; else cp ../stolen_relations_start_data/DISA.db ../DBs/DISA.sqlite; fi
       && if test -f ../DBs/dj_disa.sqlite; then echo 'dj_disa.sqlite-file-exists-not-copying'; else cp ../stolen_relations_start_data/dj_disa.db ../DBs/dj_disa.sqlite; fi
       && if test -f ./disa_app/static/data/browse_formatted.json; then echo 'browse_formatted.json-file-exists-not-copying'; else cp ../stolen_relations_start_data/browse_formatted.json ./disa_app/static/data/browse_formatted.json; fi
       && if test -f ./disa_app/static/data/browse.json; then echo 'browse.json-file-exists-not-copying'; else cp ../stolen_relations_start_data/browse.json ./disa_app/static/data/browse.json; fi
       && python disa_app/lib/generate_browse_data_in_background.py 
       && python manage.py runserver 0.0.0.0:8000
       "
+
+volumes:
+  db_data:
