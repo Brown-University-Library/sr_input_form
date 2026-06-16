@@ -26,15 +26,16 @@
             <label for="formInputDISAItemPages">Page(s)</label>
         </div>
     </div>
-    <!-- Image URL -->
+    <!-- Image -->
     <div class="col-md">
-        <div class="form-floating">
-            <input id="formInputDISAItemImage" class="form-control" type="url" placeholder="URL of image" v-model="currentItem.kludge.image_url" v-on:blur="saveItemDataToServer"></input>
-            <label for="formInputDISAItemImage">Image URL</label>
-        </div>
+            <label id="fileSelect" class="form-label" for="fileElem">Upload a record image</label>
+            <input type="file" id="fileElem" class="form-control  form-control-sm" accept=".png, .jpg, .jpeg, .pdf, .gif, .webp" v-model="formInputDISAItemImageUpload" />
+
+            <!--<label for="formInputDISAItemImage" class="btn btn-primary">Upload Image File</label>
+            <input type="file" id="formInputDISAItemImage" class="show-for-sr" v-model="currentItem.kludge.image_upload" v-on:blur="saveItemDataToServer"></input>-->
     </div>
+    <!-- Transcription textarea -->
     <div class="form-floating">
-        <!-- Transcription textarea -->
         <label for="formInputDISAItemTranscription">Transcription</label>
         <wysiwyg-editor id="formInputDISAItemTranscription" api-key="ondkaoffzc1dnoz0vypajv5qg9fvnun0bss1ew22yncnvquc" toolbar="bold italic underline strikethrough fullscreen" :init="{ height:200,menubar:false,plugins:['fullscreen'], toolbar_mode: 'floating', formats: { underline: { inline: 'u' }, strikethrough: { inline: 's' }}}" v-model="currentItem.kludge.transcription" v-on:blur="saveItemDataToServer" class="form-text"></wysiwyg-editor>
     </div>
