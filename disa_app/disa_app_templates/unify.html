@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block header_other %}
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator.min.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator_bootstrap5.min.css"
+/>
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/js/tabulator.min.js"></script>
+{% endblock header_other %} 
+{% block nav_options %} 
+{{ logout_next }} 
+{% if not user.is_authenticated %}<li class="nav-item">
+  <a
+    class="nav-link btn btn-outline-info"
+    href="{% url 'logout_url' %}?next={{ logout_next }}"
+    >Logout</a
+  >
+</li>
+{% endif %} 
+{% endblock nav_options %} 
+{% block content %}
+<!-- "Loading ..." modal -->
+{% include "modals/loading.html" %}
+<section class="" id="main-content">
+<h1>Unify Referents</h1>
+  <div class="row">
+    <div class="col-md-6"><p>Someday there will be a form here that allows certain users to unify referents. Some day.</p></div>
+  </div>
+</section>
+
+{% endblock content %} 
+{% block footer %} 
+{% include "partials/acknowledgements.html" %} 
+{% endblock footer %} 
+{% block page_specific_js %} 
+{% endblock page_specific_js %}
