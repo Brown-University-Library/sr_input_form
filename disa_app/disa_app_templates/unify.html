@@ -1,27 +1,8 @@
 {% extends "base.html" %}
 {% load static %} 
 {% block header_other %}
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator_bootstrap5.min.css"
-/>
-<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/js/tabulator.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator_bootstrap5.min.css">
 {% endblock header_other %} 
-{% block nav_options %} 
-{{ logout_next }} 
-{% if not user.is_authenticated %}<li class="nav-item">
-  <a
-    class="nav-link btn btn-outline-info"
-    href="{% url 'logout_url' %}?next={{ logout_next }}"
-    >Logout</a
-  >
-</li>
-{% endif %} 
-{% endblock nav_options %} 
 {% block content %}
 <!-- "Loading ..." modal -->
 {% include "modals/loading.html" %}
