@@ -6,81 +6,81 @@
 #
 asgiref==3.8.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   django
 build==1.2.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   pip-tools
 certifi==2024.7.4
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   requests
 charset-normalizer==2.0.12
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   requests
 click==8.1.7
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   pip-tools
 django==3.2.25
-    # via -r ./config/requirements_base.txt
+    # via -r requirements_base.txt
 idna==3.7
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   requests
 importlib-metadata==8.0.0
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   build
 packaging==24.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   build
 pip-tools==7.4.1
-    # via -r ./config/requirements_base.txt
+    # via -r requirements_base.txt
 pymysql==1.1.1
-    # via -r ./config/requirements_server.in
+    # via -r requirements_server.in
 pyproject-hooks==1.1.0
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   build
     #   pip-tools
 pytz==2024.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   django
-requests==2.27.1
-    # via -r ./config/requirements_base.txt
+requests==2.32.2
+    # via -r requirements_base.txt
 shellvars-py @ git+https://github.com/birkin/shellvars-py.git
-    # via -r ./config/requirements_base.txt
+    # via -r requirements_base.txt
 sqlalchemy==1.3.12
-    # via -r ./config/requirements_base.txt
+    # via -r requirements_base.txt
 sqlparse==0.5.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   django
 tomli==2.0.1
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   build
     #   pip-tools
 typing-extensions==4.12.2
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   asgiref
 urllib3==1.26.19
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   requests
 wheel==0.43.0
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   pip-tools
 zipp==3.19.2
     # via
-    #   -r ./config/requirements_base.txt
+    #   -r requirements_base.txt
     #   importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
