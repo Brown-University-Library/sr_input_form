@@ -1,7 +1,7 @@
 On this page:
 
 - Glossary
-- Installation
+- Installation 
 - Typical usage
 - Notes for those of us who don't know Django
 
@@ -27,21 +27,24 @@ While we aspire to eventually to update for consistency, in the meantime, these 
 
 From the terminal, run:
 
-- `git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git`<br />_(a one-time step; downloading the SR data) Note that this is a private repo, for now; the data is not yet publicly available_
-- `git clone git@github.com:Brown-University-Library/sr_input_form.git`<br/>_(a one-time step, downloads the SR codebase)_
-- `cd sr_input_form`<br />_Sets the current directory to sr_input_form.git_
+- `git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git`<br />_(a one-time step; downloads the login/password security information for the input form)_
+- `git clone --depth 1 git@github.com:Brown-University-Library/sr_dkr_sql-database.git`<br/>_(a one-time step; downloads the SR mySQL database)_
+- `git clone git@github.com:Brown-University-Library/sr_input_form.git`<br/>_(a one-time step; downloads the SR input form codebase)_
+- `cd sr_input_form`<br />_Sets the current directory to sr\_input\_form_
 - `docker-compose up`<br />_Creates the container (which starts the webapp)_
 
 The webapp should be running; from a browser, go to `http://127.0.0.1:8000/version/` or `http://127.0.0.1:8000/login/`. 
 
+If you want to tinker with the database via the database manager _adminer_, go to `http://127.0.0.1:8080`.
+
 # Typical usage
 
-- `cd <SOME_PATH>/sr_input_form`<br />_Sets the current directory to sr_input_form.git_
+- `cd <SOME_PATH>/sr_input_form`<br />_Sets the current directory to sr\_input\_form_
 - `docker-compose up`<br />_Creates the container (which starts the webapp)_
 
 Note: if a code-update installs a new python-package, either:
 
-- delete the `disa_dj_project-web` image which should force it to be rebuilt (best option), **or...**    
+- delete the `sr\_input\_form-web` image which should force it to be rebuilt (best option), **or...**    
 - run `docker-compose up --build` to force the container to be rebuilt. (I don't think this actually creates a new image, so subsequent runs of `docker-compose up` will still use the old image.)
 
 # Notes for those of us who don't know Django
