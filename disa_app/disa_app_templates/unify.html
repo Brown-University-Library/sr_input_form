@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block header_other %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator_bootstrap5.min.css">
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/js/tabulator.min.js"></script>
+{% endblock header_other %} 
+{% block content %}
+<!-- "Loading ..." modal -->
+{% include "modals/loading.html" %}
+<section class="" id="main-content">
+<h1>Unify Referents</h1>
+  <div class="row">
+    <p>Use this tool to establish that two or more Referents refer to the same person. Search for the potential matches in the "Available Referents" table, and drag them to the "Selected Referents" table to unify them.</p>
+    <p>To remove a Referent from the "Selected Referents" table, drag the Referent back to the "Available Referents" table.</p>
+    <div id="error-message" class="danger" hidden></div>
+  </div>
+  <div class="tables row">
+    <section class="table-container">
+      <h2>Selected Referents</h2>
+      <div id="selected-count" class="table-count">0 referents</div>
+      <div id="selected-table"></div>
+    </section>
+    <section class="table-container">
+      <h2>Available Referents</h2>
+      <div id="available-count" class="table-count">Loading...</div>
+      <div id="remaining-table"></div>
+    </section>
+  </div>
+  <div class="row">
+    <button class="btn btn-success btn-md" type="submit" value="Save unified referents" disabled>This will someday be a submit button to save unified referents</button>
+  </div>
+</section>
+
+{% endblock content %} 
+{% block footer %} 
+{% include "partials/acknowledgements.html" %} 
+{% endblock footer %} 
+{% block page_specific_js %}
+<script type="text/javascript">
+var DATA_URL = "{% static 'data/browse.json' %}";
+</script>
+<script type="module" src="{% static 'js/unify-refs.js' %}"></script>
+{% endblock page_specific_js %}

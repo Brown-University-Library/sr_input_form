@@ -69,7 +69,7 @@ class LoginDecoratorHelper(object):
                 new_dct.pop( key )
             elif 'wsgi.' in key:
                 new_dct.pop( key )
-        if host == '127.0.0.1' or host == '127.0.0.1:8000' or host == 'testserver':
+        if host == '127.0.0.1' or host == '127.0.0.1:8000' or host == 'testserver' or host == 'localhost' or host == 'localhost:8000':
         # if host == '127.0.0.1' or host == '127.0.0.1:8000':
             new_dct = settings_app.TEST_META_DCT
         # log.debug( 'new_dct, ```{}```'.format(pprint.pformat(new_dct)) )
