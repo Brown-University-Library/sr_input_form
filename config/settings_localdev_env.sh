@@ -125,7 +125,7 @@ export DISA_DJ__BROWSE_USERPASS_JSON='[
 ## db
 ####################
 
-export DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+export DISA_DJ__DATABASE_URL="mysql+pymysql://user:user@db:3306/stolenrelations"
 
 ####################
 ## TEMP GROUPS (TODO - document what this is; remove if not needed)

@@ -52,7 +52,7 @@ def info( request ):
         TODO: implement auto-redirect after a few seconds. """
     log.debug( '\n\nstarting info()' )
     context = {
-        'redirect_url': 'https://indigenousslavery.org'
+        'redirect_url': 'https://stolenrelations.org'
         }
     if request.GET.get('format', '') == 'json':
         resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
@@ -118,6 +118,12 @@ def map ( request ):
 
 def timeline ( request ):
     resp = render( request, 'timeline.html' )
+    return resp
+
+@shib_login
+def unify ( request ):
+    log.debug( '\n\nopening unify' )
+    resp = render( request, 'unify.html')
     return resp
 
 def source( request, src_id ):

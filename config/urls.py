@@ -41,6 +41,8 @@ urlpatterns = [
     url( r'^map/$', views.map, name='map_url' ),
     url( r'^timeline/$', views.timeline, name='timeline_url' ),
 
+    url( r'^unify/$', views.unify, name='unify_url' ),
+
     # --------------------
     # redesign...
     # --------------------
