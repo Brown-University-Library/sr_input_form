@@ -564,6 +564,7 @@ class Referent(Base):
         'Race',
         secondary=has_race,
         back_populates='referents')
+    race_text = Column(String(500))
     titles = relationship('Title',
         secondary=has_title, back_populates='referents')
     vocations = relationship('Vocation',

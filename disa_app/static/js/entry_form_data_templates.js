@@ -65,6 +65,7 @@ const REFERENT_TEMPLATE = {
   occupation_text: undefined,
   origins:'[]', // Tagify
   races:'[]', // Tagify
+  race_text: undefined,
   record_id: undefined,
   roles:'[]', // Tagify
   sex:'',
