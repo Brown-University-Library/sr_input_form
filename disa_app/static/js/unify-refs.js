@@ -135,14 +135,14 @@ const sharedTableOptions = {
   columns,
 };
 
-const unifiedTableOptions = {
+const linkedReferentsTableOptions = {
   ...sharedTableOptions,
   data: [],
   height: "300px",
   movableRowsConnectedTables: "#remaining-table",
 };
 
-const remainingTableOptions = {
+const remainingReferentsTableOptions = {
   ...sharedTableOptions,
   height: "600px",
   movableRowsConnectedTables: "#selected-table",
@@ -220,13 +220,13 @@ function pluralizeReferents(count) {
   return `${count} referent${count === 1 ? "" : "s"}`;
 }
 
-function updateCounts(remainingTable, unifiedTable) {
+function updateCounts(remainingReferentsTable, linkedReferentsTable) {
   availableCountElement.textContent = pluralizeReferents(
-    remainingTable.getDataCount(),
+    remainingReferentsTable.getDataCount(),
   );
 
   selectedCountElement.textContent = pluralizeReferents(
-    unifiedTable.getDataCount(),
+    linkedReferentsTable.getDataCount(),
   );
 }
 
@@ -239,13 +239,16 @@ function main() {
   /*
    * Create the selected table
    */
-  const unifiedTable = new Tabulator("#selected-table", unifiedTableOptions);
+  const linkedReferentsTable = new Tabulator(
+    "#selected-table",
+    linkedReferentsTableOptions,
+  );
 
   /*
    * Create the remaining table, loading data from data.json and normalizing UUIDs
    */
-  const remainingTable = new Tabulator("#remaining-table", {
-    ...remainingTableOptions,
+  const remainingReferentsTable = new Tabulator("#remaining-table", {
+    ...remainingReferentsTableOptions,
 
     ajaxURL: DATA_URL,
 
@@ -273,19 +276,19 @@ function main() {
   const updateCountsWithTables = () =>
     updateCounts(remainingTable, unifiedTable);
 
-  remainingTable.on("dataLoaded", updateCountsWithTables);
-  unifiedTable.on("dataLoaded", updateCountsWithTables);
+  remainingReferentsTable.on("dataLoaded", updateCountsWithTables);
+  linkedReferentsTable.on("dataLoaded", updateCountsWithTables);
 
-  remainingTable.on("rowAdded", updateCountsWithTables);
-  remainingTable.on("rowDeleted", updateCountsWithTables);
+  remainingReferentsTable.on("rowAdded", updateCountsWithTables);
+  remainingReferentsTable.on("rowDeleted", updateCountsWithTables);
 
-  unifiedTable.on("rowAdded", updateCountsWithTables);
-  unifiedTable.on("rowDeleted", updateCountsWithTables);
+  linkedReferentsTable.on("rowAdded", updateCountsWithTables);
+  linkedReferentsTable.on("rowDeleted", updateCountsWithTables);
 
-  remainingTable.on("movableRowsReceived", updateCountsWithTables);
-  unifiedTable.on("movableRowsReceived", updateCountsWithTables);
+  remainingReferentsTable.on("movableRowsReceived", updateCountsWithTables);
+  linkedReferentsTable.on("movableRowsReceived", updateCountsWithTables);
 
-  remainingTable.on("dataLoadError", (error) => {
+  remainingReferentsTable.on("dataLoadError", (error) => {
     console.error("Could not load data.json:", error);
 
     availableCountElement.textContent = "Unable to load referents";
