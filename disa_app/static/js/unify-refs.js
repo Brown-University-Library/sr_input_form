@@ -338,8 +338,17 @@ function main() {
     },
   });
 
-  const updateCountsWithTables = () =>
-    updateCounts(remainingTable, unifiedTable);
+  const linkReferentsForm = document.getElementById(
+    "link-referents-form-fieldset",
+  );
+
+  // Update counts and activate/deactivate the submission
+  // form when data is loaded or rows are added/removed
+
+  const updateCountsWithTables = () => {
+    linkReferentsForm.disabled = linkedReferentsTable.getDataCount() < 2;
+    updateCounts(remainingReferentsTable, linkedReferentsTable);
+  };
 
   remainingReferentsTable.on("dataLoaded", updateCountsWithTables);
   linkedReferentsTable.on("dataLoaded", updateCountsWithTables);
