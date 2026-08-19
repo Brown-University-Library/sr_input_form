@@ -548,30 +548,32 @@ def data_person_link_referents( request ):
     except (TypeError, ValueError, UnicodeDecodeError):
         return HttpResponseBadRequest( '400 / Bad Request' )
 
-    referent_uuid_1 = (
-        payload.get( 'referent_uuid_1', '' )
-        or payload.get( 'first_referent_uuid', '' )
-        or payload.get( 'first', '' )
-    )
-    referent_uuid_2 = (
-        payload.get( 'referent_uuid_2', '' )
-        or payload.get( 'second_referent_uuid', '' )
-        or payload.get( 'second', '' )
-    )
+    referent_uuids = payload.get( 'referent_uuids', [] )
+
+    if not isinstance( referent_uuids, list ):
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    if not referent_uuids or len(referent_uuids) < 2:
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
     researcher_note = (
         payload.get( 'researcher_note', '' )
         or payload.get( 'note', '' )
     )
-    if not referent_uuid_1 or not referent_uuid_2:
-        return HttpResponseBadRequest( '400 / Bad Request' )
 
     by_value = request.user.username or request.user.get_username() or str( request.user.id )
-    context: dict = view_data_person_manager.link_referents(
-        referent_uuid_1,
-        referent_uuid_2,
-        by_value,
-        researcher_note,
-    )
+
+    context: dict = {}
+    primary_referent_uuid = referent_uuids[0]
+    for referent_uuid in referent_uuids[1:]:
+        context = view_data_person_manager.link_referents(
+            primary_referent_uuid,
+            referent_uuid,
+            by_value,
+            researcher_note,
+        )
+        if 'err' in context:
+            break
     resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     return resp
 
