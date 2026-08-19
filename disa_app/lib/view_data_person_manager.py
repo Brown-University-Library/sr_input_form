@@ -13,24 +13,33 @@ log = logging.getLogger(__name__)
 
 def link_referents(referent_uuid_1: str, referent_uuid_2: str, by_value: str, note: str) -> dict:
     """Unifies two referents into the same person via the database stored procedure."""
-    log.debug('starting link_referents()')
+    log.debug('starting view_data_person_manager.link_referents()')
     engine = create_engine(settings_app.DB_URL, echo=False)
     connection = engine.raw_connection()
     cursor = None
     try:
         cursor = connection.cursor()
 
-        log.exception('BOOYAH')
+        log.debug('calling Unify_referentsToSamePerson')
         cursor.callproc(
             'Unify_referentsToSamePerson',
             [referent_uuid_1, referent_uuid_2, by_value, note],
         )
         person_uuid = None
-        for result in cursor.stored_results():
-            rows = result.fetchall()
-            if rows:
+
+        while True:
+            if cursor.description is not None:
+                rows = cursor.fetchall()
+                log.debug('rows = %s', rows)
+            else:
+                rows = ()
+
+            if person_uuid is None and rows:
                 person_uuid = rows[0][0]
+
+            if not cursor.nextset():
                 break
+
         connection.commit()
         return {'person_uuid': person_uuid}
     except Exception:
