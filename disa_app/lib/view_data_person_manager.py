@@ -41,3 +41,35 @@ def link_referents(referent_uuid_1: str, referent_uuid_2: str, by_value: str, no
         if cursor is not None:
             cursor.close()
         connection.close()
+
+
+def unlink_referent(referent_uuid: str, by_value: str, note: str) -> dict:
+    """Unlinks a referent from a person via the database stored procedure."""
+    log.debug('starting unlink_referent()')
+    engine = create_engine(settings_app.DB_URL, echo=False)
+    connection = engine.raw_connection()
+    cursor = None
+    try:
+        cursor = connection.cursor()
+
+        log.exception('BOOYAH')
+        cursor.callproc(
+            'Unify_unlinkReferentFromPerson',
+            [referent_uuid, by_value, note],
+        )
+        person_uuid = None
+        for result in cursor.stored_results():
+            rows = result.fetchall()
+            if rows:
+                person_uuid = rows[0][0]
+                break
+        connection.commit()
+        return {'person_uuid': person_uuid}
+    except Exception:
+        connection.rollback()
+        log.exception('problem calling Unify_unlinkReferentFromPerson')
+        raise
+    finally:
+        if cursor is not None:
+            cursor.close()
+        connection.close()

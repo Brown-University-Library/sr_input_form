@@ -575,6 +575,36 @@ def data_person_link_referents( request ):
     resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     return resp
 
+@shib_login
+def data_person_unlink_referent( request ):
+    """Unlinks a referent from a person via the Unify_unlinkReferentFromPerson stored procedure."""
+    log.debug( '\n\nstarting data_person_unlink_referents()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    referent_uuid = payload.get( 'referent_uuid', '' )
+    
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+    if not referent_uuid:
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+
+    context: dict = view_data_person_manager.unlink_referent(
+        referent_uuid,
+        by_value,
+        researcher_note
+    )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
+
 
 @shib_login
 def data_reference( request, rfrnc_id ):
