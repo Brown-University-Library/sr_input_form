@@ -216,6 +216,14 @@ function formatUuid(value) {
   ).toLowerCase();
 }
 
+function unformatUuid(value) {
+  if (!value || typeof value !== "string") {
+    return value;
+  } else {
+    return value.replace(/-/g, "").toLowerCase();
+  }
+}
+
 function pluralizeReferents(count) {
   return `${count} referent${count === 1 ? "" : "s"}`;
 }
@@ -233,6 +241,63 @@ function updateCounts(remainingReferentsTable, linkedReferentsTable) {
 function showError(message) {
   errorElement.textContent = message;
   errorElement.hidden = false;
+}
+
+// Get CSRF token from cookies for Django form submission
+
+function getCsrftoken() {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; csrftoken=`);
+  if (parts.length === 2) {
+    return parts.pop().split(";").shift();
+  }
+  return "";
+}
+
+// Gets link-referents form submission handler
+
+function getLinkReferentClickHandler(linkedReferentsTable, linkReferentsForm) {
+  const researcherNote = document.getElementById("researcher-note");
+
+  function submitToServer(payload) {
+    fetch("/data/person/link-referents/", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCsrftoken(),
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          linkReferentsForm.disabled = true;
+        } else {
+          alert("Error unifying referents: " + data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while unifying referents.");
+      });
+  }
+
+  return (event) => {
+    event.preventDefault();
+    const linkedReferentsUuid = linkedReferentsTable
+      .getData()
+      .map((item) => unformatUuid(item.referent_uuid));
+
+    if (linkedReferentsUuid.length > 1) {
+      // Prepare the payload for submission
+      const payload = {
+        researcher_note: researcherNote.value,
+        referent_uuids: linkedReferentsUuid,
+      };
+      submitToServer(payload);
+    }
+  };
 }
 
 function main() {
@@ -299,6 +364,16 @@ function main() {
         "served through a local web server.",
     );
   });
+
+  // Handle form submission
+  const linkReferentsFormElement = document.getElementById(
+    "link-referents-form",
+  );
+
+  linkReferentsFormElement.addEventListener(
+    "submit",
+    getLinkReferentClickHandler(linkedReferentsTable, linkReferentsForm),
+  );
 }
 
 main();
