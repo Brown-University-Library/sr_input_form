@@ -18,6 +18,30 @@
   <div class="tables row">
     <section class="table-container">
       <h2>Selected Referents</h2>
+
+      <!-- Form for linking with notes -->
+      <form class="row g-2 align-items-end" id="link-referents-form" class="col-sm-8 col-md-6">
+        <fieldset id="link-referents-form-fieldset" disabled>
+          <div>
+              <label class="form-label" for="researcher-note">Researcher notes</label>
+              <input
+                class="form-control"
+                id="researcher-note"
+                name="researcher_note"
+                type="text"
+              >
+          </div>
+          <div class="col-auto">
+            <button
+              class="btn btn-success btn-md"
+              type="submit"
+              id="submit-link-referents"
+            >
+              Save unified referents
+            </button>
+          </div>
+        </fieldset> 
+      </form>
       <div id="selected-count" class="table-count">0 referents</div>
       <div id="selected-table"></div>
     </section>
