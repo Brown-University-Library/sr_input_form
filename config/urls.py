@@ -60,6 +60,7 @@ urlpatterns = [
     url( r'^data/records/$', views.data_records, name='data_record_url' ),  # note, 'refID' is passed on a PUT.
     url( r'^data/records/(?P<rec_id>.*)/$', views.data_records, name='data_record_url' ),  # note, 'refID' is passed on a PUT.
     url( r'^data/reference/(?P<rfrnc_id>.*)/$', views.data_reference, name='data_reference_url' ),
+    url( r'^data/person/link-referents/$', views.data_person_link_referents, name='data_person_link_referents_url' ),
 
     url( r'^data/entrants/details/(?P<rfrnt_id>.*)/$', views.data_entrants_details, name='data_entrants_details_url' ),
     url( r'^data/entrants/(?P<rfrnt_id>.*)/$', views.data_entrants, name='data_referent_url' ),

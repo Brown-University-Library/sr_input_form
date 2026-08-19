@@ -22,6 +22,7 @@ from disa_app.lib import v_data_relationships_manager  # api/relationship-by-ref
 from disa_app.lib import view_browse_manager
 from disa_app.lib import view_data_entrant_manager  # api/referents
 from disa_app.lib import view_data_group_manager  # api/groups
+from disa_app.lib import view_data_person_manager  # api/person-link-referents
 from disa_app.lib import view_data_records_manager  # api/items
 from disa_app.lib import view_edit_record_manager
 from disa_app.lib import view_edit_relationship_manager
@@ -533,6 +534,45 @@ def data_records( request, rec_id=None ):
         log.exception( 'problem handling request' )
     resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     db_session.close()
+    return resp
+
+
+@shib_login
+def data_person_link_referents( request ):
+    """Links two referents to the same person via the stored procedure."""
+    log.debug( '\n\nstarting data_person_link_referents()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    referent_uuid_1 = (
+        payload.get( 'referent_uuid_1', '' )
+        or payload.get( 'first_referent_uuid', '' )
+        or payload.get( 'first', '' )
+    )
+    referent_uuid_2 = (
+        payload.get( 'referent_uuid_2', '' )
+        or payload.get( 'second_referent_uuid', '' )
+        or payload.get( 'second', '' )
+    )
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+    if not referent_uuid_1 or not referent_uuid_2:
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+    context: dict = view_data_person_manager.link_referents(
+        referent_uuid_1,
+        referent_uuid_2,
+        by_value,
+        researcher_note,
+    )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     return resp
 
 

@@ -32,6 +32,63 @@
   </div>
 </section>
 
+<script>
+
+function getCsrftoken() {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; csrftoken=`);
+  if (parts.length === 2) {
+    return parts.pop().split(';').shift();
+  }
+  return '';
+}
+
+/*
+function getCsrftoken(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    return parts.pop().split(';').shift();
+  }
+  return '';
+} */
+
+function testLinkReferentsApi() {
+  const payload = {
+    referent_uuid_1: '0525bfbd58654199a597c296602cd1b1',
+    referent_uuid_2: '45342abed6d4455d87ebf1853d4509f6',
+    researcher_note: 'Testing referent unification via API'
+  };
+
+  fetch('/data/person/link-referents/', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCsrftoken()
+    },
+    body: JSON.stringify(payload)
+  })
+  .then((response) => response.text())
+  .then((text) => {
+    console.log(text);
+    alert(text);
+  })
+  .catch((error) => {
+    console.error(error);
+    alert('Request failed: ' + error);
+  });
+}
+</script>
+
+<button id="api-test" onclick="testLinkReferentsApi()">
+  UNIFY
+</button>
+<button id="api-test" onclick="testLinkReferentsApi2()">
+  UN-UNIFY
+</button>
+
+
 {% endblock content %} 
 {% block footer %} 
 {% include "partials/acknowledgements.html" %} 
