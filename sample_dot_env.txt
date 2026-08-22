@@ -1,0 +1,31 @@
+# Copy this file to ../.env and review every value before using uv commands.
+# Keep the real .env in the enclosing outer directory, outside this Git repository.
+
+DISA_DJ__SECRET_KEY="replace-with-a-local-secret"
+DISA_DJ__DEBUG_JSON="true"
+DISA_DJ__ADMINS_JSON='[["Example Administrator", "admin@example.org"]]'
+DISA_DJ__ALLOWED_HOSTS='["0.0.0.0", "127.0.0.1", "localhost"]'
+DISA_DJ__DATABASES_JSON='{"default":{"ENGINE":"django.db.backends.sqlite3","HOST":"","NAME":"../DBs/dj_disa.sqlite","PASSWORD":"","PORT":"","USER":""}}'
+DISA_DJ__STATIC_URL="/static/"
+DISA_DJ__STATIC_ROOT="/static/"
+DISA_DJ__EMAIL_HOST="localhost"
+DISA_DJ__EMAIL_PORT="1026"
+DISA_DJ__SERVER_EMAIL="do-not-reply@example.org"
+DISA_DJ__LOG_PATH="../logs/stolen_relations.log"
+DISA_DJ__LOG_LEVEL="DEBUG"
+DISA_DJ__CSRF_TRUSTED_ORIGINS_JSON='["http://localhost", "http://127.0.0.1"]'
+DISA_DJ__CACHES_JSON='{"default":{"BACKEND":"django.core.cache.backends.filebased.FileBasedCache","LOCATION":"../cache_dir","TIMEOUT":0,"OPTIONS":{"MAX_ENTRIES":1000}}}'
+DISA_DJ__README_URL="https://github.com/Brown-University-Library/disa_dj_project/blob/main/README.md"
+DISA_DJ__MAINTENANCE_MODE_JSON="false"
+DISA_DJ__DENORMALIZED_JSON_PATH="./disa_app/static/data/denormalized.json"
+DISA_DJ__DENORMALIZED_JSON_URL="http://127.0.0.1:8000/static/data/denormalized.json"
+DISA_DJ__BROWSE_JSON_PATH="./disa_app/static/data/browse.json"
+DISA_DJ__BROWSE_JSON_URL="http://127.0.0.1:8000/static/data/browse.json"
+DISA_DJ__SUPER_USERS_JSON='[]'
+DISA_DJ__STAFF_USERS_JSON='["developer@example.org"]'
+DISA_DJ__STAFF_GROUP="disa_data_editors"
+DISA_DJ__TEST_META_DCT_JSON='{"Shibboleth-eppn":"developer@example.org","Shibboleth-brownNetId":"example_user","Shibboleth-mail":"developer@example.org","Shibboleth-givenName":"Example","Shibboleth-sn":"User"}'
+DISA_DJ__LOGIN_PROBLEM_EMAIL="support@example.org"
+DISA_DJ__BROWSE_USERPASS_JSON='[{"example_username":"example_password"}]'
+DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+DISA_DJ__TEMP_GROUPS_ENABLED_JSON="true"
