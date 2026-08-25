@@ -50,7 +50,7 @@ If you want to tinker with the database via the database manager _adminer_, go t
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it is not already available. Then enter the Git repository from the enclosing outer directory:
 
 ```bash
-cd /path/to/disa_dj_stuff/disa_dj_project
+cd /path/to/outer_stuff_dir/sr_input_form/
 ```
 
 Create the outer environment file once, then review every value and path before running the application:
@@ -59,7 +59,7 @@ Create the outer environment file once, then review every value and path before 
 cp sample_dot_env.txt ../.env
 ```
 
-The real `.env` belongs in `disa_dj_stuff/`, one directory above this Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
+The real `.env` belongs in `outer_stuff_dir/`, one directory above this Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
 
 Install the locked local dependencies and verify Django:
 
