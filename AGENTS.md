@@ -122,6 +122,7 @@ If other instruction files exist and conflict with this file, follow this file a
 
 ### Commit messages
 
+- Do not commit on your own. Use the bullets below only when asked to prepare commits and commit.
 - Group related files into focused commits; do not require a separate commit for every file.
 - Keep each commit message brief, with no more than ten words.
 - Write messages in the present tense so they complete the phrase "This commit..." Begin with a fitting verb such as "Adds," "Implements," or "Updates."
