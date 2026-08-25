@@ -122,9 +122,9 @@ def timeline ( request ):
     return resp
 
 @shib_login
-def unify ( request ):
-    log.debug( '\n\nopening unify' )
-    resp = render( request, 'unify.html')
+def link_referents ( request ):
+    log.debug( '\n\nopening link_referents' )
+    resp = render( request, 'link_referents.html')
     return resp
 
 def source( request, src_id ):

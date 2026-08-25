@@ -12,7 +12,7 @@ from django.urls import reverse
 log = logging.getLogger(__name__)
 
 
-class PersonUnifyApiTest(TestCase):
+class LinkReferentApiTest(TestCase):
     """Checks the person-link-referents API endpoint."""
 
     def test_post_links_referents_and_uses_authenticated_user_as_by_value(self):

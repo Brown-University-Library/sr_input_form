@@ -9,7 +9,7 @@
 <!-- "Loading ..." modal -->
 {% include "modals/loading.html" %}
 <section class="" id="main-content">
-<h1>Unify Referents</h1>
+<h1>Link Referents</h1>
   <div class="row">
     <p>Use this tool to establish that two or more Referents refer to the same person. Search for the potential matches in the "Available Referents" table, and drag them to the "Selected Referents" table to unify them.</p>
     <p>To remove a Referent from the "Selected Referents" table, drag the Referent back to the "Available Referents" table.</p>
@@ -67,5 +67,5 @@
 <script type="text/javascript">
 var DATA_URL = "{% static 'data/browse.json' %}";
 </script>
-<script type="module" src="{% static 'js/unify-refs.js' %}"></script>
+<script type="module" src="{% static 'js/link-refs.js' %}"></script>
 {% endblock page_specific_js %}

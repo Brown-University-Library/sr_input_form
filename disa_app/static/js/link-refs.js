@@ -271,15 +271,16 @@ function getLinkReferentClickHandler(linkedReferentsTable, linkReferentsForm) {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log("Server response:", data);
         if (data.success) {
           linkReferentsForm.disabled = true;
         } else {
-          alert("Error unifying referents: " + data.error);
+          alert("Error linking referents: " + data.error);
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-        alert("An error occurred while unifying referents.");
+        alert("An error occurred while linking referents.");
       });
   }
 
