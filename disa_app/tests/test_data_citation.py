@@ -6,6 +6,7 @@ import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
+from disa_app.tests.utils import skip_unless_sqlalchemy_sqlite
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -240,6 +241,7 @@ class Citation_Test( TestCase ):
 
 
 
+    @skip_unless_sqlalchemy_sqlite
     def test_put_really_long_title_to_trigger_display_truncation(self):
         """ Checks PUT to `http://127.0.0.1:8000/data/documents/abcd/` with very long title. """
         ## create citation

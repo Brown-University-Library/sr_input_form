@@ -6,6 +6,7 @@ import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
+from disa_app.tests.utils import skip_unless_sqlalchemy_sqlite
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -172,6 +173,7 @@ class Record_Test( TestCase ):
     #     self.assertEqual( 404, response.status_code )
     #     self.assertEqual( b'404 / Not Found', response.content )
 
+    @skip_unless_sqlalchemy_sqlite
     def test_get_single_good(self):
         """ Checks good GET of `http://127.0.0.1:8000/data/records/abcd/`. """
         ## create record
@@ -238,6 +240,7 @@ class Record_Test( TestCase ):
     #     self.assertEqual( 400, response.status_code )
     #     self.assertEqual( b'400 / Bad Request', response.content )
 
+    @skip_unless_sqlalchemy_sqlite
     def test_post_good(self):
         """ Checks `http://127.0.0.1:8000/data/records/` POST w/good params. """
         ## create record
@@ -259,6 +262,7 @@ class Record_Test( TestCase ):
     #     self.assertEqual( 400, put_response.status_code )
     #     self.assertTrue( b'Bad Request' in put_response.content )
 
+    @skip_unless_sqlalchemy_sqlite
     def test_put_good(self):
         """ Checks good PUT to `http://127.0.0.1:8000/data/records/abcd/`.
             Sample put payload:
@@ -346,6 +350,7 @@ class Record_Test( TestCase ):
     #     self.assertEqual( 500, self.delete_resp_statuscode )
     #     self.assertEqual( b'500 / Server Error', self.delete_resp_content )
 
+    @skip_unless_sqlalchemy_sqlite
     def test_delete_good(self):
         """ Checks good DELETE of `http://127.0.0.1:8000/data/reference/abcd/`.
             Note that, for no good reason, this root url is _different_ from the normal `http://127.0.0.1:8000/data/records/abcd/` """

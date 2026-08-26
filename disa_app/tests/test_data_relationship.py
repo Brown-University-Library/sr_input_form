@@ -6,6 +6,7 @@ import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
+from disa_app.tests.utils import skip_unless_sqlalchemy_sqlite
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -36,6 +37,7 @@ class Relationship_Test( TestCase ):
 
     ## POST =======================
 
+    @skip_unless_sqlalchemy_sqlite
     def test_post_relationship__relationship_does_not_exist(self):
         """ Checks good POST of a relationship.
             NOTE: 
@@ -96,6 +98,7 @@ class Relationship_Test( TestCase ):
         # self.assertEqual( '/data/sections/1524/relationships/', response.headers['location'] )  # type: ignore
 
 
+    @skip_unless_sqlalchemy_sqlite
     def test_post_relationship__relationship_already_exists(self):
         """ Checks POST of already-existing relationship.
             See "NOTE" above.

@@ -7,6 +7,7 @@ import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
+from disa_app.tests.utils import skip_unless_sqlalchemy_sqlite
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -73,6 +74,7 @@ class Client_Referent_API_Test( TestCase ):
         self.assertEqual( 404, response.status_code )
         self.assertTrue( b'Not Found' in response.content )  # type: ignore
 
+    @skip_unless_sqlalchemy_sqlite
     def test_get_good(self):
         """ Checks good GET of `http://127.0.0.1:8000/data/entrants/1234/`. """
         ## create referent
@@ -109,6 +111,7 @@ class Client_Referent_API_Test( TestCase ):
         self.assertEqual( 400, response.status_code )
         self.assertTrue( b'Bad Request' in response.content )  # type: ignore
 
+    @skip_unless_sqlalchemy_sqlite
     def test_post_good(self):
         """ Checks POST to `http://127.0.0.1:8000/data/entrants/1234/` w/good params. """
         ## create referent
@@ -170,6 +173,7 @@ class Client_Referent_API_Test( TestCase ):
         self.assertEqual( 500, delete_response.status_code )
         self.assertTrue( b'Server Error' in delete_response.content )  # type: ignore
 
+    @skip_unless_sqlalchemy_sqlite
     def test_delete_good(self):
         """ Checks good DELETE of `http://127.0.0.1:8000/data/entrants/1234/`. """
         ## create referent
@@ -194,6 +198,7 @@ class Client_Referent_Details_API_Test( TestCase ):
     #     self.assertEqual( 400, put_response.status_code )
     #     self.assertTrue( b'Bad Request' in put_response.content )
 
+    @skip_unless_sqlalchemy_sqlite
     def test_put_details_good(self):
         """ Checks good PUT to `http://127.0.0.1:8000/data/entrants/details/1234/`.
             Note: the `random` part is to ensure there is different data being sent, and checked. 
