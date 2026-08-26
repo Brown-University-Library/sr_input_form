@@ -7,8 +7,7 @@ separate in-memory SQLite database and never require MySQL database-creation
 permission.
 """
 
-from .settings import *  # noqa: F401,F403
-
+from .settings import *
 
 DATABASES = {
     'default': {
