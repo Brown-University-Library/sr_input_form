@@ -538,6 +538,20 @@ def data_records( request, rec_id=None ):
 
 
 @shib_login
+def data_person_all( request ):
+    """Returns all people and the primary names of their linked referents."""
+    log.debug( '\n\nstarting data_person_all()' )
+    if request.method != 'GET':
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    context: dict = view_data_person_manager.get_all_people()
+    return HttpResponse(
+        json.dumps(context, sort_keys=True, indent=2),
+        content_type='application/json; charset=utf-8',
+    )
+
+
+@shib_login
 def data_person_link_referents( request ):
     """Links two referents to the same person via the stored procedure."""
     log.debug( '\n\nstarting data_person_link_referents()' )
