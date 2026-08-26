@@ -9,16 +9,16 @@ Usage:
 """
 
 import argparse
-import json
 import os
 import socket
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, TextIO
+from typing import Any, Dict, List, TextIO
 from urllib.parse import urlsplit
 
 PROJECT_DIR_PATH = Path(__file__).resolve().parent
+TEST_SETTINGS_MODULE = 'config.settings_test'
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -54,27 +54,30 @@ def is_production_hostname(hostname: str) -> bool:
 
 def load_runtime_environment() -> None:
     """
-    Loads Django settings so the configured database targets can be inspected.
+    Loads test-only Django settings so the database targets can be inspected.
 
     Called by: manage_test_run()
     """
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+    os.environ['DJANGO_SETTINGS_MODULE'] = TEST_SETTINGS_MODULE
     import django
 
     django.setup()
 
 
-def describe_django_database(database_json: str) -> str:
+def describe_django_database(database_config: Dict[str, Any]) -> str:
     """
-    Returns a credential-free description of the default Django database.
+    Returns a credential-free description of a Django database.
 
     Called by: build_database_warning()
     """
-    database_config = json.loads(database_json)['default']
     engine = database_config.get('ENGINE', 'unknown')
     if engine.endswith('sqlite3'):
-        database_name = Path(database_config.get('NAME', '')).name or 'unknown-file'
-        description = f'sqlite file {database_name}'
+        configured_name = database_config.get('NAME', '')
+        if configured_name == ':memory:':
+            description = 'sqlite in-memory database'
+        else:
+            database_name = Path(configured_name).name or 'unknown-file'
+            description = f'sqlite file {database_name}'
     else:
         hostname = database_config.get('HOST') or 'unknown-host'
         database_name = database_config.get('NAME') or 'unknown-database'
@@ -106,14 +109,16 @@ def build_database_warning() -> str:
 
     Called by: manage_test_run()
     """
-    django_description = describe_django_database(os.environ['DISA_DJ__DATABASES_JSON'])
+    from django.conf import settings
+
+    django_description = describe_django_database(settings.DATABASES['default'])
     sqlalchemy_description = describe_sqlalchemy_database(os.environ['DISA_DJ__DATABASE_URL'])
     warning = (
         '\nWARNING: These tests are for development only.\n'
         "Some tests write through SQLAlchemy outside Django's temporary test database.\n"
-        f'Django database: {django_description}\n'
+        f'Django test database: {django_description}\n'
         f'SQLAlchemy database: {sqlalchemy_description}\n'
-        'Confirm that both targets contain development data before continuing.\n'
+        'Confirm that the SQLAlchemy target contains development data before continuing.\n'
     )
     return warning
 
@@ -160,7 +165,12 @@ def run_django_tests(test_labels: List[str]) -> int:
 
     Called by: manage_test_run()
     """
-    command = [sys.executable, str(PROJECT_DIR_PATH / 'manage.py'), 'test'] + test_labels
+    command = [
+        sys.executable,
+        str(PROJECT_DIR_PATH / 'manage.py'),
+        'test',
+        f'--settings={TEST_SETTINGS_MODULE}',
+    ] + test_labels
     completed_process = subprocess.run(command, cwd=str(PROJECT_DIR_PATH), check=False)
     return completed_process.returncode
 

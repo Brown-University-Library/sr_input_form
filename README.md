@@ -101,7 +101,9 @@ uv run ./manage.py runserver
 
 ## Running tests with uv
 
-Tests are for development environments only. Some tests write through SQLAlchemy to `DISA_DJ__DATABASE_URL`, outside Django's temporary test database. Before continuing, confirm that both `DISA_DJ__DATABASES_JSON` and `DISA_DJ__DATABASE_URL` in the outer `.env` point to development data.
+Tests are for development environments only. The guarded runner uses `config/settings_test.py`, which replaces the normal Django database with a temporary in-memory SQLite database. This avoids requiring permission to create a MySQL database.
+
+Some tests also write through SQLAlchemy to `DISA_DJ__DATABASE_URL`, outside Django's temporary test database. Before continuing, confirm that `DISA_DJ__DATABASE_URL` in the outer `.env` points to development data.
 
 Run the full Django test suite with:
 
@@ -115,7 +117,9 @@ Or pass a Django test label to run a selected test module, class, or method:
 uv run ./run_tests.py disa_app.tests.test_renamer
 ```
 
-The runner displays credential-free descriptions of both configured database targets. Tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p` or when no interactive terminal is available.
+The runner displays credential-free descriptions of both database targets. Tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p` or when no interactive terminal is available.
+
+Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it bypasses the development-data warning and should be reserved for tests known not to write through SQLAlchemy.
 
 ## Phase 1 dependency note
 

@@ -108,7 +108,8 @@ If other instruction files exist and conflict with this file, follow this file a
 ## Tests
 
 - Use Django's test framework.
-- Tests are development-only because several tests write through SQLAlchemy to `DISA_DJ__DATABASE_URL` outside Django's temporary test database.
+- Tests are development-only because several tests write through SQLAlchemy to `DISA_DJ__DATABASE_URL` outside Django's temporary SQLite test database.
+- `config/settings_test.py` replaces only Django's normal database with an in-memory SQLite database.
 - `run_tests.py` displays the configured database targets without credentials and requires the exact response `yes` before starting tests.
 - Never run the test suite against production data.
 - New behavior should usually include a focused success case and at least one failure or edge case.
@@ -137,6 +138,7 @@ If other instruction files exist and conflict with this file, follow this file a
 
 - `manage.py`: Django command entry point.
 - `config/settings.py`: loads the outer `.env` for uv/server work; Docker keeps using the variables supplied by Compose.
+- `config/settings_test.py`: replaces Django's database with in-memory SQLite for test runs; it does not replace `DISA_DJ__DATABASE_URL`.
 - `config/passenger_wsgi.py`: WSGI entry point. It does not parse shell settings after Phase 1.
 - `config/urls.py`: endpoint routing.
 - `disa_app/views.py`: endpoint handlers.
