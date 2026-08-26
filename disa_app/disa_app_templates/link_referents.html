@@ -9,30 +9,71 @@
 <!-- "Loading ..." modal -->
 {% include "modals/loading.html" %}
 <section class="" id="main-content">
-<h1>Link Referents</h1>
+  <h1>Link Referents</h1>
   <div class="row">
-    <p>Use this tool to establish that two or more Referents refer to the same person. Search for the potential matches in the "Available Referents" table, and drag them to the "Selected Referents" table to unify them.</p>
-    <p>To remove a Referent from the "Selected Referents" table, drag the Referent back to the "Available Referents" table.</p>
-    <div id="error-message" class="danger" hidden></div>
+    <p>
+      Use this tool to establish that two or more Referents refer to the same
+      person. Search for the potential matches in the "Available Referents"
+      table, and drag them to the "Selected Referents" table to unify them.
+    </p>
+    <p>
+      To remove a Referent from the "Selected Referents" table, drag the
+      Referent back to the "Available Referents" table.
+    </p>
+    <!-- <div id="error-message" class="danger" hidden></div> -->
   </div>
-  <div class="tables row">
 
+  <!-- Big buttons to select action-->
+
+  <div class="row g-3 mb-4 state-select-action">
+    <div class="col-auto">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        id="create-new-person"
+      >
+        Create new person
+      </button>
+    </div>
+    <div class="col-auto">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        id="select-existing-person"
+      >
+        Edit existing person
+      </button>
+    </div>
+  </div>
+
+  <div
+    class="tables row state-edit-person state-create-person state-select-person"
+  >
     <!-- Referents selected for linking -->
 
-    <section class="table-container">
+    <section class="table-container state-edit-person state-create-person">
       <h2>Selected Referents</h2>
+      <div id="selected-count" class="table-count">0 referents</div>
+      <div id="selected-table"></div>
 
       <!-- Form for linking with notes -->
-      <form class="row g-2 align-items-end" id="link-referents-form" class="col-sm-8 col-md-6">
+
+      <form
+        class="row g-2 align-items-end"
+        id="link-referents-form"
+        class="col-sm-8 col-md-6"
+      >
         <fieldset id="link-referents-form-fieldset" disabled>
           <div>
-              <label class="form-label" for="researcher-note">Researcher notes</label>
-              <input
-                class="form-control"
-                id="researcher-note"
-                name="researcher_note"
-                type="text"
-              >
+            <label class="form-label" for="researcher-note"
+              >Researcher notes</label
+            >
+            <input
+              class="form-control"
+              id="researcher-note"
+              name="researcher_note"
+              type="text"
+            />
           </div>
           <div class="col-auto">
             <button
@@ -42,16 +83,17 @@
             >
               Save unified referents
             </button>
+            <span id="save-status-message" hidden></span>
           </div>
-        </fieldset> 
+        </fieldset>
       </form>
-      <div id="selected-count" class="table-count">0 referents</div>
-      <div id="selected-table"></div>
     </section>
-  
+
     <!-- Available Referents -->
 
-    <section class="table-container">
+    <section
+      class="table-container state-edit-person state-create-person state-select-person"
+    >
       <h2>Available Referents</h2>
       <div id="available-count" class="table-count">Loading...</div>
       <div id="remaining-table"></div>
@@ -65,7 +107,7 @@
 {% endblock footer %} 
 {% block page_specific_js %}
 <script type="text/javascript">
-var DATA_URL = "{% static 'data/browse.json' %}";
+  var DATA_URL = "{% static 'data/browse.json' %}";
 </script>
 <script type="module" src="{% static 'js/link-refs.js' %}"></script>
 {% endblock page_specific_js %}

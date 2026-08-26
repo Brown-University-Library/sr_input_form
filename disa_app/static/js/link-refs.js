@@ -1,389 +1,105 @@
-//const DATA_URL = "data.json";
+import { initializeTabulatorTables } from "./link-refs_initializeTabulator.js";
 
-// Global variables for count elements and error message
+// Global variables
 
-const availableCountElement = document.querySelector("#available-count"),
-  selectedCountElement = document.querySelector("#selected-count"),
-  errorElement = document.querySelector("#error-message");
-
-// Tabulator options
-
-const columns = [
-  {
-    title: "",
-    field: "drag_handle",
-    formatter: "handle",
-    rowHandle: true,
-    headerSort: false,
-    resizable: false,
-    frozen: true,
-    width: 40,
-  },
-  {
-    title: "Name",
-    field: "displayName",
-    headerFilter: "input",
-    formatter: (cell) => displayName(cell.getRow().getData()),
-    sorter: (a, b, aRow, bRow) => {
-      const aName = displayName(aRow.getData());
-      const bName = displayName(bRow.getData());
-
-      return aName.localeCompare(bName);
-    },
-    minWidth: 180,
-  },
-  {
-    title: "UUID",
-    field: "referent_uuid",
-    headerFilter: "input",
-    width: 100,
-  },
-  {
-    title: "Sex",
-    field: "sex",
-    headerFilter: "input",
-    width: 100,
-  },
-  {
-    title: "Age",
-    field: "age",
-    headerFilter: "input",
-    minWidth: 120,
-  },
-  {
-    title: "Age Category",
-    field: "age_category",
-    headerFilter: "input",
-    minWidth: 150,
-  },
-  {
-    title: "Race",
-    field: "races",
-    formatter: (cell) => displayArray(cell.getValue()),
-    headerFilter: "input",
-    minWidth: 140,
-  },
-  {
-    title: "Tribes",
-    field: "tribes",
-    formatter: (cell) => displayArray(cell.getValue()),
-    headerFilter: "input",
-    minWidth: 160,
-  },
-  {
-    title: "Origins",
-    field: "origins",
-    formatter: (cell) => displayArray(cell.getValue()),
-    headerFilter: "input",
-    minWidth: 160,
-  },
-  {
-    title: "Occupations",
-    field: "occupations",
-    formatter: (cell) => displayArray(cell.getValue()),
-    headerFilter: "input",
-    minWidth: 160,
-  },
-  {
-    title: "Enslavement Status",
-    field: "enslavement_status",
-    formatter: (cell) => displayArray(cell.getValue()),
-    headerFilter: "input",
-    minWidth: 260,
-  },
-  {
-    title: "Record Type",
-    field: "record_type",
-    headerFilter: "input",
-    minWidth: 160,
-  },
-  {
-    title: "National Context",
-    field: "record_national_context",
-    headerFilter: "input",
-    minWidth: 160,
-  },
-  {
-    title: "Record Date",
-    field: "record_date",
-    formatter: (cell) => displayDate(cell.getValue()),
-    headerFilter: "input",
-    width: 130,
-  },
-  {
-    title: "Location",
-    field: "record_locations",
-    formatter: (cell) => displayLocation(cell.getRow().getData()),
-    headerFilter: "input",
-    minWidth: 220,
-  },
-  {
-    title: "Record ID",
-    field: "record_id",
-    headerFilter: "input",
-    width: 110,
-  },
+const STATE_CLASS_NAMES = [
+  "state-edit-person",
+  "state-create-person",
+  "state-select-person",
+  "state-select-action",
 ];
 
-const sharedTableOptions = {
-  index: "referent_uuid",
-  layout: "fitDataStretch",
-  movableRows: true,
-  movableRowsReceiver: "add",
-  movableRowsSender: "delete",
-  placeholder: "No referents",
-  columns,
-};
+const selector = STATE_CLASS_NAMES.map((cn) => `.${cn}`).join(", "),
+  STATE_DOM_ELEMS = document.querySelectorAll(selector);
 
-const linkedReferentsTableOptions = {
-  ...sharedTableOptions,
-  data: [],
-  height: "300px",
-  movableRowsConnectedTables: "#remaining-table",
-};
+// Initialize states
 
-const remainingReferentsTableOptions = {
-  ...sharedTableOptions,
-  height: "600px",
-  movableRowsConnectedTables: "#selected-table",
-};
+function initializeEditPersonState() {}
 
-// Functions
+function initializeCreatePersonState() {}
 
-function displayArray(value) {
-  return Array.isArray(value) ? value.join(", ") : "";
+function initializeSelectPersonState() {}
+
+function initializeSelectActionState() {
+  // Click handlers for buttons
+
+  document.getElementById("create-new-person").addEventListener("click", () => {
+    changeStateToCreatePerson();
+  });
+
+  document
+    .getElementById("select-existing-person")
+    .addEventListener("click", () => {
+      changeStateToSelectPerson();
+    });
 }
 
-function displayName(rowData) {
-  const name = [rowData.name_first, rowData.name_last]
-    .filter((value) => typeof value === "string" && value.trim() !== "")
-    .join(" ");
+// Change states
 
-  return name || "[Unnamed]";
+function updateVisibilityForState(currentStateClassName) {
+  STATE_DOM_ELEMS.forEach((el) => {
+    el.style.display = el.classList.contains(currentStateClassName)
+      ? ""
+      : "none";
+  });
 }
 
-function displayDate(value) {
-  if (!value) {
-    return "";
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return date.toISOString().slice(0, 10);
+function changeStateToEditPerson() {
+  updateVisibilityForState("state-edit-person");
 }
 
-function displayLocation(rowData) {
-  const properties = rowData.record_locations?.properties;
-
-  if (!properties) {
-    return "";
-  }
-
-  return [properties.Locale, properties.City, properties["Colony/State"]]
-    .filter(Boolean)
-    .join(", ");
+function changeStateToCreatePerson(referentUuid) {
+  updateVisibilityForState("state-create-person");
+  // Optional parameter referentUuid can be used to pre-fill the form with data from the referent
 }
 
-// Normalize UUID strings by inserting hyphens if they are 32 hex chars.
-
-function formatUuid(value) {
-  if (!value || typeof value !== "string") {
-    return value;
-  }
-
-  // Strip non-hex characters (in case UUIDs already contain hyphens or unexpected chars)
-  const hex = value.replace(/[^a-fA-F0-9]/g, "");
-
-  if (hex.length !== 32) {
-    // Not a compact UUID candidate; return original value unchanged
-    return value;
-  }
-
-  return (
-    hex.slice(0, 8) +
-    "-" +
-    hex.slice(8, 12) +
-    "-" +
-    hex.slice(12, 16) +
-    "-" +
-    hex.slice(16, 20) +
-    "-" +
-    hex.slice(20)
-  ).toLowerCase();
+function changeStateToSelectAction() {
+  updateVisibilityForState("state-select-action");
 }
 
-function unformatUuid(value) {
-  if (!value || typeof value !== "string") {
-    return value;
-  } else {
-    return value.replace(/-/g, "").toLowerCase();
-  }
+function changeStateToSelectPerson() {
+  updateVisibilityForState("state-select-person");
+  // Change the state of the application to select a person to seed the edit-person state
 }
 
-function pluralizeReferents(count) {
-  return `${count} referent${count === 1 ? "" : "s"}`;
-}
+// Main setup area
 
-function updateCounts(remainingReferentsTable, linkedReferentsTable) {
-  availableCountElement.textContent = pluralizeReferents(
-    remainingReferentsTable.getDataCount(),
-  );
+function parseUrlForInitialState() {
+  // Parse the URL to determine the current state of the application
+  // This could involve checking the path or query parameters to determine what action to take
+  const urlParams = new URLSearchParams(window.location.search),
+    referentUuid = urlParams.get("referent_uuid"),
+    personUuid = urlParams.get("person_uuid");
 
-  selectedCountElement.textContent = pluralizeReferents(
-    linkedReferentsTable.getDataCount(),
-  );
-}
-
-function showError(message) {
-  errorElement.textContent = message;
-  errorElement.hidden = false;
-}
-
-// Get CSRF token from cookies for Django form submission
-
-function getCsrftoken() {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; csrftoken=`);
-  if (parts.length === 2) {
-    return parts.pop().split(";").shift();
-  }
-  return "";
-}
-
-// Gets link-referents form submission handler
-
-function getLinkReferentClickHandler(linkedReferentsTable, linkReferentsForm) {
-  const researcherNote = document.getElementById("researcher-note");
-
-  function submitToServer(payload) {
-    fetch("/data/person/link-referents/", {
-      method: "POST",
-      credentials: "same-origin",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": getCsrftoken(),
-      },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Server response:", data);
-        if (data.success) {
-          linkReferentsForm.disabled = true;
-        } else {
-          alert("Error linking referents: " + data.error);
-        }
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("An error occurred while linking referents.");
-      });
-  }
-
-  return (event) => {
-    event.preventDefault();
-    const linkedReferentsUuid = linkedReferentsTable
-      .getData()
-      .map((item) => unformatUuid(item.referent_uuid));
-
-    if (linkedReferentsUuid.length > 1) {
-      // Prepare the payload for submission
-      const payload = {
-        researcher_note: researcherNote.value,
-        referent_uuids: linkedReferentsUuid,
-      };
-      submitToServer(payload);
+  if (referentUuid) {
+    // If a UUID is present in the URL, we can assume we're editing an existing person
+    const personUuid = getPersonUuidFromReferentUuid(referentUuid);
+    if (personUuid) {
+      changeStateToEditPerson(personUuid);
+    } else {
+      // If no person UUID is found for the referent UUID, we can assume we're creating a new person
+      changeStateToCreatePerson(referentUuid);
     }
-  };
+  } else if (personUuid) {
+    // If no referent UUID is present but a person UUID is, we can assume we're editing an existing person
+    changeStateToEditPerson(personUuid);
+  } else {
+    // Default: offer action options to user
+    changeStateToSelectAction();
+  }
+}
+
+function initializeStates() {
+  initializeEditPersonState();
+  initializeCreatePersonState();
+  initializeSelectPersonState();
+  initializeSelectActionState();
 }
 
 function main() {
-  /*
-   * Create the selected table
-   */
-  const linkedReferentsTable = new Tabulator(
-    "#selected-table",
-    linkedReferentsTableOptions,
-  );
-
-  /*
-   * Create the remaining table, loading data from data.json and normalizing UUIDs
-   */
-  const remainingReferentsTable = new Tabulator("#remaining-table", {
-    ...remainingReferentsTableOptions,
-
-    ajaxURL: DATA_URL,
-
-    ajaxResponse(url, params, response) {
-      if (!response || !Array.isArray(response.referent_list)) {
-        throw new Error(
-          "data.json must contain a top-level referent_list array.",
-        );
-      }
-
-      console.log("Data metadata:", response.meta);
-
-      // Ensure `referent_uuid` values are normalized to UUID hyphenation
-      const list = response.referent_list.map((item) => {
-        return Object.assign({}, item, {
-          referent_uuid: formatUuid(item.referent_uuid),
-          displayName: displayName(item),
-        });
-      });
-
-      return list;
-    },
-  });
-
-  const linkReferentsForm = document.getElementById(
-    "link-referents-form-fieldset",
-  );
-
-  // Update counts and activate/deactivate the submission
-  // form when data is loaded or rows are added/removed
-
-  const updateCountsWithTables = () => {
-    linkReferentsForm.disabled = linkedReferentsTable.getDataCount() < 2;
-    updateCounts(remainingReferentsTable, linkedReferentsTable);
-  };
-
-  remainingReferentsTable.on("dataLoaded", updateCountsWithTables);
-  linkedReferentsTable.on("dataLoaded", updateCountsWithTables);
-
-  remainingReferentsTable.on("rowAdded", updateCountsWithTables);
-  remainingReferentsTable.on("rowDeleted", updateCountsWithTables);
-
-  linkedReferentsTable.on("rowAdded", updateCountsWithTables);
-  linkedReferentsTable.on("rowDeleted", updateCountsWithTables);
-
-  remainingReferentsTable.on("movableRowsReceived", updateCountsWithTables);
-  linkedReferentsTable.on("movableRowsReceived", updateCountsWithTables);
-
-  remainingReferentsTable.on("dataLoadError", (error) => {
-    console.error("Could not load data.json:", error);
-
-    availableCountElement.textContent = "Unable to load referents";
-
-    showError(
-      "Could not load data.json. Make sure the file is in the same " +
-        "directory as this HTML file and that the directory is being " +
-        "served through a local web server.",
-    );
-  });
-
-  // Handle form submission
-  const linkReferentsFormElement = document.getElementById(
-    "link-referents-form",
-  );
-
-  linkReferentsFormElement.addEventListener(
-    "submit",
-    getLinkReferentClickHandler(linkedReferentsTable, linkReferentsForm),
-  );
+  initializeStates();
+  initializeTabulatorTables();
+  parseUrlForInitialState();
 }
 
 main();
