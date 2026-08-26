@@ -110,7 +110,7 @@ If other instruction files exist and conflict with this file, follow this file a
 - Use Django's test framework.
 - Tests are development-only because several tests write through SQLAlchemy to `DISA_DJ__DATABASE_URL` outside Django's temporary SQLite test database.
 - `config/settings_test.py` replaces only Django's normal database with an in-memory SQLite database.
-- `run_tests.py` displays the configured database targets without credentials and requires the exact response `yes` before starting tests.
+- `run_tests.py` displays the configured database targets without credentials. Manual runs require the exact response `yes`; automated development deployments require the exact startup environment value `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`.
 - Never run the test suite against production data.
 - New behavior should usually include a focused success case and at least one failure or edge case.
 

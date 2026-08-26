@@ -117,7 +117,9 @@ Or pass a Django test label to run a selected test module, class, or method:
 uv run ./run_tests.py disa_app.tests.test_renamer
 ```
 
-The runner displays credential-free descriptions of both database targets. Tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p` or when no interactive terminal is available.
+The runner displays credential-free descriptions of both database targets. For a manual run, tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p`.
+
+An automated development deployment can run without a terminal when its caller explicitly exports `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`. The runner reads this authorization before loading the outer `.env`; keep it in the deployment caller rather than adding it to `.env`. The production-hostname refusal still applies when automated authorization is present.
 
 Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it bypasses the development-data warning and should be reserved for tests known not to write through SQLAlchemy.
 

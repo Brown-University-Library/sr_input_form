@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Runs Django tests after an explicit development-database confirmation.
+Runs Django tests after explicit development-database authorization.
 
 Usage:
     uv run ./run_tests.py
@@ -19,6 +19,8 @@ from urllib.parse import urlsplit
 
 PROJECT_DIR_PATH = Path(__file__).resolve().parent
 TEST_SETTINGS_MODULE = 'config.settings_test'
+AUTOMATED_TEST_AUTHORIZATION_ENVIRONMENT_KEY = 'DISA_DJ__AUTOMATED_TEST_AUTHORIZATION'
+AUTOMATED_TEST_AUTHORIZATION_VALUE = 'run-development-tests'
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -29,7 +31,8 @@ def parse_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         description=(
-            'Runs Django tests after displaying the configured database targets and requiring the exact response yes. '
+            'Runs Django tests after displaying the configured database targets and requiring manual confirmation or '
+            'explicit automated authorization. '
             "Some tests write through SQLAlchemy outside Django's temporary test database."
         ),
     )
@@ -141,7 +144,7 @@ def request_confirmation(warning: str) -> bool:
     """
     Requires the exact response yes through the controlling terminal.
 
-    Called by: manage_test_run()
+    Called by: request_test_run_authorization()
     """
     is_confirmed = False
     terminal_is_available = True
@@ -157,6 +160,24 @@ def request_confirmation(warning: str) -> bool:
     if terminal_is_available and not is_confirmed:
         print('Tests not run: the exact response yes was not received.', file=sys.stderr)
     return is_confirmed
+
+
+def request_test_run_authorization(warning: str, automated_authorization: str) -> bool:
+    """
+    Accepts exact automated authorization or requests manual confirmation.
+
+    Called by: manage_test_run()
+    """
+    is_authorized = automated_authorization == AUTOMATED_TEST_AUTHORIZATION_VALUE
+    if is_authorized:
+        sys.stderr.write(warning)
+        print(
+            f'Automated test authorization accepted via {AUTOMATED_TEST_AUTHORIZATION_ENVIRONMENT_KEY}.',
+            file=sys.stderr,
+        )
+    else:
+        is_authorized = request_confirmation(warning)
+    return is_authorized
 
 
 def run_django_tests(test_labels: List[str]) -> int:
@@ -175,7 +196,7 @@ def run_django_tests(test_labels: List[str]) -> int:
     return completed_process.returncode
 
 
-def manage_test_run(test_labels: List[str]) -> int:
+def manage_test_run(test_labels: List[str], automated_authorization: str = '') -> int:
     """
     Applies safety checks and runs the requested Django tests.
 
@@ -188,7 +209,7 @@ def manage_test_run(test_labels: List[str]) -> int:
     else:
         load_runtime_environment()
         warning = build_database_warning()
-        if request_confirmation(warning):
+        if request_test_run_authorization(warning, automated_authorization):
             exit_code = run_django_tests(test_labels)
     return exit_code
 
@@ -199,8 +220,9 @@ def main() -> None:
 
     Called by: run_tests.__main__
     """
+    automated_authorization = os.environ.get(AUTOMATED_TEST_AUTHORIZATION_ENVIRONMENT_KEY, '')
     arguments = parse_arguments()
-    exit_code = manage_test_run(arguments.test_labels)
+    exit_code = manage_test_run(arguments.test_labels, automated_authorization)
     raise SystemExit(exit_code)
 
 
