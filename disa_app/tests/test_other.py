@@ -6,7 +6,6 @@ import requests
 from disa_app import settings_app
 from disa_app.lib import view_search_results_manager
 from disa_app.models import UserProfile
-from disa_app.tests.utils import skip_unless_sqlalchemy_sqlite
 from django.conf import settings as project_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -108,7 +107,6 @@ class ClientDocDataTest( TestCase ):
     #     redirect_url = response._headers['location'][1]
     #     self.assertEqual(  '/login/', redirect_url )
 
-    @skip_unless_sqlalchemy_sqlite
     def test_data_doc_get_logged_in(self):
         """ Checks that logged-in api-GET returns response. """
         usr = User.objects.create( username='test_user' )
