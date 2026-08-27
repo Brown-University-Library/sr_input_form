@@ -101,9 +101,9 @@ uv run ./manage.py runserver
 
 ## Running tests with uv
 
-Tests are for development environments only. The guarded runner uses `config/settings_test.py`, which replaces the normal Django database with a temporary in-memory SQLite database. This avoids requiring permission to create a MySQL database.
+Tests are for development environments only. The guarded runner uses `config/settings_test.py`, which replaces the normal Django database with a temporary in-memory SQLite database. It also creates a temporary on-disk SQLite database for SQLAlchemy-backed tests and populates it with synthetic fixture data.
 
-Some tests also write through SQLAlchemy to `DISA_DJ__DATABASE_URL`, outside Django's temporary test database. Before continuing, confirm that `DISA_DJ__DATABASE_URL` in the outer `.env` points to development data.
+The runner redirects `DISA_DJ__DATABASE_URL` to that generated fixture before application modules load. Both test databases are removed after the run, including after test failure. The configured local or server SQLAlchemy database is not modified.
 
 Run the full Django test suite with:
 
@@ -121,7 +121,7 @@ The runner displays credential-free descriptions of both database targets. For a
 
 An automated development deployment can run without a terminal when its caller explicitly exports `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`. The runner reads this authorization before loading the outer `.env`; keep it in the deployment caller rather than adding it to `.env`. The production-hostname refusal still applies when automated authorization is present.
 
-Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it bypasses the development-data warning and should be reserved for tests known not to write through SQLAlchemy.
+Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it does not build or select the isolated SQLAlchemy fixture. Reserve it for tests known not to access SQLAlchemy.
 
 ## Phase 1 dependency note
 

@@ -9,9 +9,9 @@ from disa_app import settings_app
 
 SQLALCHEMY_USES_SQLITE = urlsplit(settings_app.DB_URL).scheme.startswith('sqlite')
 
-# TODO: Remove this temporary decorator after the affected tests create all of
-# their SQLAlchemy data and can safely clean it up on both SQLite and MySQL.
+# Direct Django test commands do not build the isolated SQLAlchemy fixture.
+# Keep data-dependent tests away from a configured MySQL database.
 skip_unless_sqlalchemy_sqlite = skipUnless(
     SQLALCHEMY_USES_SQLITE,
-    'TODO: create isolated SQLAlchemy test data before enabling this test against MySQL.',
+    'Requires the isolated SQLAlchemy SQLite fixture created by run_tests.py.',
 )

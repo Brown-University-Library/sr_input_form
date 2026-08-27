@@ -108,8 +108,8 @@ If other instruction files exist and conflict with this file, follow this file a
 ## Tests
 
 - Use Django's test framework.
-- Tests are development-only because several tests write through SQLAlchemy to `DISA_DJ__DATABASE_URL` outside Django's temporary SQLite test database.
-- `config/settings_test.py` replaces only Django's normal database with an in-memory SQLite database.
+- Tests are development-only. `run_tests.py` creates separate temporary SQLite databases for Django and SQLAlchemy-backed tests and removes them after the run.
+- `config/settings_test.py` replaces Django's normal database with in-memory SQLite and redirects SQLAlchemy when the guarded runner supplies its temporary fixture URL.
 - `run_tests.py` displays the configured database targets without credentials. Manual runs require the exact response `yes`; automated development deployments require the exact startup environment value `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`.
 - Never run the test suite against production data.
 - New behavior should usually include a focused success case and at least one failure or edge case.
@@ -118,7 +118,7 @@ If other instruction files exist and conflict with this file, follow this file a
 
 1. Read relevant surrounding code and match existing conventions.
 2. Make the smallest correct change that satisfies the request.
-3. Update tests and run `uv run ./run_tests.py` against development data.
+3. Update tests and run `uv run ./run_tests.py` against the generated test fixtures.
 4. If tests cannot run, state the reason and the exact command that remains to be run.
 
 ### Commit messages
@@ -138,7 +138,7 @@ If other instruction files exist and conflict with this file, follow this file a
 
 - `manage.py`: Django command entry point.
 - `config/settings.py`: loads the outer `.env` for uv/server work; Docker keeps using the variables supplied by Compose.
-- `config/settings_test.py`: replaces Django's database with in-memory SQLite for test runs; it does not replace `DISA_DJ__DATABASE_URL`.
+- `config/settings_test.py`: replaces Django's database with in-memory SQLite and accepts the temporary SQLAlchemy fixture URL from `run_tests.py`.
 - `config/passenger_wsgi.py`: WSGI entry point. It does not parse shell settings after Phase 1.
 - `config/urls.py`: endpoint routing.
 - `disa_app/views.py`: endpoint handlers.
@@ -146,7 +146,8 @@ If other instruction files exist and conflict with this file, follow this file a
 - `disa_app/models.py`: Django-managed user-profile and deletion-marker models.
 - `disa_app/models_sqlalchemy.py`: SQLAlchemy mappings for the main historical data.
 - `disa_app/settings_app.py`: application settings read from `DISA_DJ__...` environment variables.
-- `disa_app/tests/`: Django tests; some also write through SQLAlchemy to the configured development database.
+- `disa_app/tests/`: Django tests; SQLAlchemy-backed tests use the generated SQLite fixture.
+- `disa_app/tests/sqlalchemy_fixture_builder.py`: creates the SQLAlchemy schema and synthetic rows required by tests.
 - `disa_app/static/data/`: generated browse and denormalized JSON files; large generated files are ignored.
 - `config/requirements_*.txt`: retained for the Phase 1 Docker workflow, not authoritative for uv.
 - `pyproject.toml` and `uv.lock`: authoritative dependency declarations for uv-based local and server work.

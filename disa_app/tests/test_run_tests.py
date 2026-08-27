@@ -5,7 +5,9 @@ Checks the guarded test runner's automated-authorization behavior.
 import os
 from contextlib import redirect_stderr
 from io import StringIO
+from pathlib import Path
 from unittest import mock
+from urllib.parse import urlsplit
 
 from django.test import SimpleTestCase
 
@@ -46,12 +48,14 @@ class AutomatedTestAuthorizationTest(SimpleTestCase):
         request_confirmation.assert_called_once_with(warning)
 
     @mock.patch.object(test_runner, 'run_django_tests')
+    @mock.patch.object(test_runner, 'prepare_sqlalchemy_test_database')
     @mock.patch.object(test_runner, 'load_runtime_environment')
     @mock.patch.object(test_runner.socket, 'gethostname', return_value='prdisa')
     def test_production_hostname_blocks_automated_authorization(
         self,
         gethostname,
         load_runtime_environment,
+        prepare_sqlalchemy_test_database,
         run_django_tests,
     ):
         """
@@ -62,17 +66,20 @@ class AutomatedTestAuthorizationTest(SimpleTestCase):
         self.assertEqual(1, exit_code)
         gethostname.assert_called_once_with()
         load_runtime_environment.assert_not_called()
+        prepare_sqlalchemy_test_database.assert_not_called()
         run_django_tests.assert_not_called()
 
     @mock.patch.object(test_runner, 'run_django_tests', return_value=0)
     @mock.patch.object(test_runner, 'request_test_run_authorization', return_value=True)
     @mock.patch.object(test_runner, 'build_database_warning', return_value='database warning\n')
+    @mock.patch.object(test_runner, 'prepare_sqlalchemy_test_database')
     @mock.patch.object(test_runner, 'load_runtime_environment')
     @mock.patch.object(test_runner.socket, 'gethostname', return_value='dlibwwwcit')
     def test_automated_authorization_runs_tests_on_nonproduction_hostname(
         self,
         gethostname,
         load_runtime_environment,
+        prepare_sqlalchemy_test_database,
         build_database_warning,
         request_test_run_authorization,
         run_django_tests,
@@ -87,6 +94,12 @@ class AutomatedTestAuthorizationTest(SimpleTestCase):
         self.assertEqual(0, exit_code)
         gethostname.assert_called_once_with()
         load_runtime_environment.assert_called_once_with()
+        prepare_sqlalchemy_test_database.assert_called_once_with(mock.ANY)
+        database_url = prepare_sqlalchemy_test_database.call_args.args[0]
+        database_path = Path(urlsplit(database_url).path)
+        self.assertTrue(database_url.startswith('sqlite:///'))
+        self.assertEqual('DISA-test.sqlite', database_path.name)
+        self.assertFalse(database_path.exists())
         build_database_warning.assert_called_once_with()
         request_test_run_authorization.assert_called_once_with(warning, test_runner.AUTOMATED_TEST_AUTHORIZATION_VALUE)
         run_django_tests.assert_called_once_with(test_labels)

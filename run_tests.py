@@ -13,14 +13,17 @@ import os
 import socket
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, TextIO
+from typing import Any, Dict, List, Optional, TextIO
 from urllib.parse import urlsplit
 
 PROJECT_DIR_PATH = Path(__file__).resolve().parent
 TEST_SETTINGS_MODULE = 'config.settings_test'
 AUTOMATED_TEST_AUTHORIZATION_ENVIRONMENT_KEY = 'DISA_DJ__AUTOMATED_TEST_AUTHORIZATION'
 AUTOMATED_TEST_AUTHORIZATION_VALUE = 'run-development-tests'
+TEST_SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY = 'DISA_DJ__TEST_SQLALCHEMY_DATABASE_URL'
+SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY = 'DISA_DJ__DATABASE_URL'
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -33,7 +36,7 @@ def parse_arguments() -> argparse.Namespace:
         description=(
             'Runs Django tests after displaying the configured database targets and requiring manual confirmation or '
             'explicit automated authorization. '
-            "Some tests write through SQLAlchemy outside Django's temporary test database."
+            'SQLAlchemy-backed tests use a separate generated SQLite fixture database.'
         ),
     )
     parser.add_argument(
@@ -115,15 +118,49 @@ def build_database_warning() -> str:
     from django.conf import settings
 
     django_description = describe_django_database(settings.DATABASES['default'])
-    sqlalchemy_description = describe_sqlalchemy_database(os.environ['DISA_DJ__DATABASE_URL'])
+    sqlalchemy_description = describe_sqlalchemy_database(os.environ[SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY])
     warning = (
         '\nWARNING: These tests are for development only.\n'
-        "Some tests write through SQLAlchemy outside Django's temporary test database.\n"
+        'SQLAlchemy-backed tests use a separate generated fixture database.\n'
         f'Django test database: {django_description}\n'
-        f'SQLAlchemy database: {sqlalchemy_description}\n'
-        'Confirm that the SQLAlchemy target contains development data before continuing.\n'
+        f'SQLAlchemy test database: {sqlalchemy_description}\n'
+        'Both test databases are temporary and are removed after the run.\n'
     )
     return warning
+
+
+def configure_sqlalchemy_test_database(database_path: Path) -> str:
+    """
+    Configures the temporary on-disk SQLite URL used by SQLAlchemy-backed tests.
+
+    Called by: manage_test_run()
+    """
+    database_url = f'sqlite:///{database_path}'
+    os.environ[TEST_SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY] = database_url
+    return database_url
+
+
+def prepare_sqlalchemy_test_database(database_url: str) -> None:
+    """
+    Creates the SQLAlchemy schema and inserts the test fixture data.
+
+    Called by: manage_test_run()
+    """
+    from disa_app.tests.sqlalchemy_fixture_builder import build_database
+
+    build_database(database_url)
+
+
+def restore_environment_value(key: str, original_value: Optional[str]) -> None:
+    """
+    Restores or removes an environment value after the temporary test run.
+
+    Called by: manage_test_run()
+    """
+    if original_value is None:
+        os.environ.pop(key, None)
+    else:
+        os.environ[key] = original_value
 
 
 def read_confirmation(warning: str, input_stream: TextIO, output_stream: TextIO) -> bool:
@@ -207,10 +244,20 @@ def manage_test_run(test_labels: List[str], automated_authorization: str = '') -
     if is_production_hostname(hostname):
         print(f'Tests not run: production hostname detected, ``{hostname}``.', file=sys.stderr)
     else:
-        load_runtime_environment()
-        warning = build_database_warning()
-        if request_test_run_authorization(warning, automated_authorization):
-            exit_code = run_django_tests(test_labels)
+        original_test_database_url = os.environ.get(TEST_SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY)
+        original_database_url = os.environ.get(SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY)
+        with tempfile.TemporaryDirectory(prefix='disa-sqlalchemy-tests-') as temporary_directory:
+            database_path = Path(temporary_directory) / 'DISA-test.sqlite'
+            database_url = configure_sqlalchemy_test_database(database_path)
+            try:
+                load_runtime_environment()
+                prepare_sqlalchemy_test_database(database_url)
+                warning = build_database_warning()
+                if request_test_run_authorization(warning, automated_authorization):
+                    exit_code = run_django_tests(test_labels)
+            finally:
+                restore_environment_value(TEST_SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY, original_test_database_url)
+                restore_environment_value(SQLALCHEMY_DATABASE_URL_ENVIRONMENT_KEY, original_database_url)
     return exit_code
 
 
