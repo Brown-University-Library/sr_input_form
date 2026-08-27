@@ -3,12 +3,17 @@ Builds the isolated SQLAlchemy database used by the Django test suite.
 """
 
 import datetime
+from typing import Any
 from urllib.parse import urlsplit
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from disa_app import models_sqlalchemy as models_alch
+from disa_app import models_sqlalchemy
+
+# SQLAlchemy 1.3 creates mapped constructors and relationships dynamically.
+# Limit the dynamic typing boundary to the legacy model module.
+models_alch: Any = models_sqlalchemy
 
 AGE_CATEGORIES = (
     ('78ac411b-be39-41e3-be66-43017e30d105', 'Infant'),
