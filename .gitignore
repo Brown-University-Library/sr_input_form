@@ -10,3 +10,4 @@ denormalized_formatted.json
 denormalized.json
 env
 migrations
+.venv

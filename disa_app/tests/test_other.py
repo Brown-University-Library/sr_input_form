@@ -212,4 +212,3 @@ class DockerTest( TestCase ):
                     failure_message = f'in dockerfile, ``{dockerfile_path}``, the requirements, ``{req_filepath_to_test}`` does not exist'
                     self.assertTrue( req_filepath_to_test.exists(), failure_message )
                     log.debug( 'test passed' )
-                        

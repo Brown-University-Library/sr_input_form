@@ -1,0 +1,25 @@
+## settings ##
+line-length = 125
+indent-width = 4
+target-version = "py38"
+
+[lint]
+ignore = ["FA100"]
+
+[format]
+docstring-code-format = false
+indent-style = "space"
+line-ending = "auto"
+quote-style = "single"
+
+[lint.flake8-quotes]
+avoid-escape = true
+
+[lint.isort]
+case-sensitive = true
+
+[lint.pycodestyle]
+max-line-length = 125
+
+[lint.pydocstyle]
+convention = "google"
