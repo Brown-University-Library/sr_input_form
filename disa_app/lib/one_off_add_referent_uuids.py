@@ -6,8 +6,7 @@ Adds a uuid to each referent entry that doesn't have one.
 
 Usage:
 - cd to project dir
-- source env
-- $ python3 ./disa_app/lib/one_off_add_referent_uuids.py
+- $ uv run ./disa_app/lib/one_off_add_referent_uuids.py
 """
 
 import logging, os, pprint, sys, uuid
