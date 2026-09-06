@@ -32,7 +32,8 @@ If other instruction files exist and conflict with this file, follow this file a
 - Run tests via: `uv run ./run_tests.py`
 - Run a selected test via: `uv run ./run_tests.py disa_app.tests.test_module`
 - Run Django management commands via: `uv run ./manage.py THE-COMMAND`
-- Host/server settings come from `../.env`; Docker mounts `../docker/`, creates its missing `.env` from the tracked Docker sample, and exposes it through `/sr_project_stuff/.env`. Existing files are preserved. File values override inherited application settings.
+- Host/server settings come from `../.env`; Docker mounts `../docker/`, creates its missing `.env` from the shared `sample_dot_env.txt` (Docker defaults), and exposes it through `/sr_project_stuff/.env`. Existing files are preserved. File values override inherited application settings.
+- Local SQLite setup uses the same sample with `DISA_DJ__DATABASE_URL` changed in the copied `../.env`, for example to `sqlite:///../DBs/DISA.sqlite`.
 - Docker commands use `docker compose exec web uv run --locked --offline --group local ...`; dependencies live at `/opt/venv`, managed Python at `/opt/python`. Rebuild after dependency changes.
 
 ## Coding directives (Python)

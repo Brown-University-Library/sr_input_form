@@ -53,7 +53,7 @@ Start Docker with the supplied development defaults:
 docker compose up --build
 ```
 
-Compose creates `DBs/`, `logs/`, `cache_dir/`, and `docker/` in the enclosing directory as needed. On first startup, the web container copies `sample_dot_env_docker.txt` to `../docker/.env`. Existing settings are preserved. To customize them, edit `../docker/.env` and run `docker compose restart web`. You can also supply that file before the first startup.
+Compose creates `DBs/`, `logs/`, `cache_dir/`, and `docker/` in the enclosing directory as needed. On first startup, the web container copies `sample_dot_env.txt` to `../docker/.env`. Existing settings are preserved. To customize them, edit `../docker/.env` and run `docker compose restart web`. You can also supply that file before the first startup.
 
 Keep the example SQLAlchemy URL pointed to service `db:3306` and its development credentials aligned with MySQL's `MYSQL_*` values in Compose. Django separately uses `../DBs/dj_disa.sqlite`. Keep browse proxy URLs on internal port 8000 even if you change a published host port. The example identities and passwords are for development; use the team's supplied seed account or create an account with the appropriate application profile.
 
@@ -80,6 +80,14 @@ Create the outer environment file once, then review every value and path before 
 ```bash
 cp sample_dot_env.txt ../.env
 ```
+
+The shared sample uses Docker's MySQL connection by default. For local SQLite use, edit the copied `../.env` and replace its `DISA_DJ__DATABASE_URL` assignment with:
+
+```dotenv
+DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+```
+
+Adjust the path to your existing SQLAlchemy database. Django's separate database path remains in `DISA_DJ__DATABASES_JSON`; provide both databases before starting the application.
 
 Reminder: the real `.env` belongs in `sr_input_form_stuff/`, one directory above the Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
 

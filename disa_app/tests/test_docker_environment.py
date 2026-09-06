@@ -67,7 +67,7 @@ class DotenvSettingsTest(SimpleTestCase):
         """
         Checks all required keys, quoted JSON, Docker database paths, and file precedence.
         """
-        sample = (ROOT / 'sample_dot_env_docker.txt').read_text()
+        sample = (ROOT / 'sample_dot_env.txt').read_text()
         result = run_settings(sample, {'DISA_DJ__SECRET_KEY': 'inherited-value'})
         self.assertEqual(0, result.returncode, result.stderr)
         settings = json.loads(result.stdout)
@@ -94,7 +94,7 @@ class DotenvSettingsTest(SimpleTestCase):
         Checks a missing required key produces a useful error.
         """
         sample = (
-            (ROOT / 'sample_dot_env_docker.txt')
+            (ROOT / 'sample_dot_env.txt')
             .read_text()
             .replace(
                 'DISA_DJ__SECRET_KEY="example_secret_key"',
@@ -110,7 +110,7 @@ class DotenvSettingsTest(SimpleTestCase):
         Checks invalid JSON is rejected during settings loading.
         """
         sample = (
-            (ROOT / 'sample_dot_env_docker.txt')
+            (ROOT / 'sample_dot_env.txt')
             .read_text()
             .replace(
                 'DISA_DJ__DEBUG_JSON="true"',
@@ -121,20 +121,27 @@ class DotenvSettingsTest(SimpleTestCase):
         self.assertNotEqual(0, result.returncode)
         self.assertIn('JSONDecodeError', result.stderr)
 
-    def test_host_sample_remains_separate(self):
+    def test_sample_supports_documented_local_sqlite_override(self):
         """
-        Checks the host file's SQLAlchemy SQLite setting is preserved.
+        Checks the shared sample works with the documented local SQLite replacement.
         """
-        sample = (ROOT / 'sample_dot_env.txt').read_text()
+        sample = (
+            (ROOT / 'sample_dot_env.txt')
+            .read_text()
+            .replace(
+                'DISA_DJ__DATABASE_URL="mysql+pymysql://user:user@db:3306/stolenrelations"',
+                'DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"',
+            )
+        )
         result = run_settings(sample)
         self.assertEqual(0, result.returncode, result.stderr)
-        self.assertTrue(json.loads(result.stdout)['url'].startswith('sqlite:///'))
+        self.assertEqual('sqlite:///../DBs/DISA.sqlite', json.loads(result.stdout)['url'])
 
     def test_fixture_routing_survives_dotenv(self):
         """
         Checks test settings replace both databases after the file loads.
         """
-        sample = (ROOT / 'sample_dot_env_docker.txt').read_text()
+        sample = (ROOT / 'sample_dot_env.txt').read_text()
         result = run_settings(sample, {'DISA_DJ__TEST_SQLALCHEMY_DATABASE_URL': 'sqlite:////tmp/disa-fixture.sqlite'}, True)
         self.assertEqual(0, result.returncode, result.stderr)
         settings = json.loads(result.stdout)

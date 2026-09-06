@@ -67,13 +67,15 @@ Django checks passed with the existing `caches.W003` warning about a relative ca
 
 ## Settings, startup, and failure checks
 
-The new Docker sample preserves all **28 parsed values** from the retired tracked Docker example, including the 26 required settings. This was compared using the pinned dotenv loader before deleting the old example. After validation, the repository-name correction updated `DISA_DJ__README_URL` in both sanitized samples to the current `sr_input_form` README; the other 27 Docker sample values remain as compared. JSON, authentication examples, MySQL service addressing, SQLite destination, log/cache paths, and internal browse URLs are unchanged.
+The new Docker sample preserves all **28 parsed values** from the retired tracked Docker example, including the 26 required settings. This was compared using the pinned dotenv loader before deleting the old example. After validation, the repository-name correction updated `DISA_DJ__README_URL` in the sanitized sample to the current `sr_input_form` README; the other 27 Docker sample values remain as compared. JSON, authentication examples, MySQL service addressing, SQLite destination, log/cache paths, and internal browse URLs are unchanged.
+
+There is now one shared `sample_dot_env.txt`, using the established Docker formatting and all 28 Docker default values. Docker copies it automatically into `../docker/.env` when missing. For local SQLite development, copy it into `../.env` and replace `DISA_DJ__DATABASE_URL` with the local SQLite URL shown in its header and README. Django's separate SQLite setting stays unchanged. The duplicate sample is removed; existing real settings files retain their values. The consolidated sample passed all 64 guarded tests, including loading its Docker defaults and the documented local SQLite replacement. An isolated Docker run with networking disabled copied the shared sample on first startup and preserved an edited settings file on the next; both runs then stopped at deliberately absent seed files. Evidence is retained in `/private/tmp/sr-shared-sample-20260906/` and `/private/tmp/sr-shared-sample-tests.log`.
 
 `config/settings.py` unconditionally requires the outer `.env`, loads it with `override=True`, and retains required-key validation. Compose no longer supplies `web.env_file`, `DISA_DJ__ENV_SETTINGS_PATH`, `FOO_KEY`, or unused `DB_*` variables. MySQL keeps its separate Compose-supplied `MYSQL_*` entrypoint settings. The existing real host `.env`, `.env_dev`, `.env_prod`, and private shell snapshots were not rewritten or copied into the test stack.
 
 | Check | Result |
 | --- | --- |
-| Valid Docker and host samples | Pass; Docker selects MySQL/PyMySQL plus Django SQLite, while the host sample retains SQLAlchemy SQLite |
+| Shared sample and local SQLite override | Docker defaults select MySQL/PyMySQL plus Django SQLite; replacing the documented URL selects local SQLAlchemy SQLite |
 | File precedence | Pass; a file value replaces a conflicting inherited application value |
 | Missing file | Pass; settings fail even if the retired bypass variable is inherited |
 | Missing required key | Pass; failure identifies the missing setting name |

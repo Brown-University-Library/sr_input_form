@@ -53,7 +53,7 @@ services:
 
         if [[ ! -e ../docker/.env && ! -L ../docker/.env ]]; then
             ## Preserve the sample's ownership so the host developer can edit the new file.
-            cp -p -n sample_dot_env_docker.txt ../docker/.env
+            cp -p -n sample_dot_env.txt ../docker/.env
             echo 'Created ../docker/.env from the Docker development sample. Edit it and restart web to customize settings.'
         fi
 

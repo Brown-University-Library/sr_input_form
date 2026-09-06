@@ -1,31 +1,138 @@
-# Copy this file to ../.env and review every value before using uv commands.
-# Keep the real .env in the enclosing outer directory, outside this Git repository.
+## Shared development settings sample, with Docker defaults.
+## Docker startup copies this to ../docker/.env only if that file is missing.
+## Edit Docker settings there, then run docker compose restart web.
+##
+## For local development without Docker, copy this file to ../.env and change
+## DISA_DJ__DATABASE_URL to point to your local SQLAlchemy SQLite database, for example:
+## DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+## The relative SQLite path is resolved from the application repository directory.
+## Django uses its separate SQLite database in DISA_DJ__DATABASES_JSON below.
+## Review database paths and provide the required databases before running locally.
+##
+## python-dotenv loads the selected .env; file values override inherited settings.
+## Do not source this file. All credentials and identities below are examples.
 
-DISA_DJ__SECRET_KEY="replace-with-a-local-secret"
+## ============================================================================
+## standard project-level settings
+## ============================================================================
+
+DISA_DJ__SECRET_KEY="example_secret_key"
+
 DISA_DJ__DEBUG_JSON="true"
-DISA_DJ__ADMINS_JSON='[["Example Administrator", "admin@example.org"]]'
-DISA_DJ__ALLOWED_HOSTS='["0.0.0.0", "127.0.0.1", "localhost"]'
-DISA_DJ__DATABASES_JSON='{"default":{"ENGINE":"django.db.backends.sqlite3","HOST":"","NAME":"../DBs/dj_disa.sqlite","PASSWORD":"","PORT":"","USER":""}}'
+
+DISA_DJ__ADMINS_JSON='
+    [
+      [
+        "exampleFirst exampleLast",
+        "example@domain.edu"
+      ]
+    ]
+    '
+
+# DISA_DJ__ALLOWED_HOSTS='["127.0.0.1", "127.0.0.1:8000", "0.0.0.0:8000", "localhost:8000"]'  # must be json
+DISA_DJ__ALLOWED_HOSTS='["0.0.0.0", "127.0.0.1", "localhost"]'  # must be json
+
+DISA_DJ__DATABASES_JSON='
+    {
+      "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "HOST": "",
+        "NAME": "../DBs/dj_disa.sqlite",
+        "PASSWORD": "",
+        "PORT": "",
+        "USER": ""
+      }
+    }
+    '
+
 DISA_DJ__STATIC_URL="/static/"
 DISA_DJ__STATIC_ROOT="/static/"
+
 DISA_DJ__EMAIL_HOST="localhost"
-DISA_DJ__EMAIL_PORT="1026"
-DISA_DJ__SERVER_EMAIL="do-not-reply@example.org"
+DISA_DJ__EMAIL_PORT="1026"  # will be converted to int in settings.py
+DISA_DJ__SERVER_EMAIL="donotreply_stolen-relations-project@domain.edu"
+
 DISA_DJ__LOG_PATH="../logs/stolen_relations.log"
 DISA_DJ__LOG_LEVEL="DEBUG"
-DISA_DJ__CSRF_TRUSTED_ORIGINS_JSON='["http://localhost", "http://127.0.0.1"]'
-DISA_DJ__CACHES_JSON='{"default":{"BACKEND":"django.core.cache.backends.filebased.FileBasedCache","LOCATION":"../cache_dir","TIMEOUT":0,"OPTIONS":{"MAX_ENTRIES":1000}}}'
+
+DISA_DJ__CSRF_TRUSTED_ORIGINS_JSON='["localhost", "127.0.0.1"]'
+
+## https://docs.djangoproject.com/en/1.11/topics/cache/
+## - TIMEOUT is in seconds (0 means don't cache); CULL_FREQUENCY defaults to one-third
+DISA_DJ__CACHES_JSON='
+{
+  "default": {
+    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+    "LOCATION": "../cache_dir",
+    "TIMEOUT": 0,
+    "OPTIONS": {
+        "MAX_ENTRIES": 1000
+    }
+  }
+}
+'
+
+
+## ============================================================================
+## app
+## ============================================================================
+
 DISA_DJ__README_URL="https://github.com/Brown-University-Library/sr_input_form/blob/main/README.md"
+
 DISA_DJ__MAINTENANCE_MODE_JSON="false"
+
+####################
+## browse-page
+####################
+
 DISA_DJ__DENORMALIZED_JSON_PATH="./disa_app/static/data/denormalized.json"
 DISA_DJ__DENORMALIZED_JSON_URL="http://127.0.0.1:8000/static/data/denormalized.json"
+
 DISA_DJ__BROWSE_JSON_PATH="./disa_app/static/data/browse.json"
 DISA_DJ__BROWSE_JSON_URL="http://127.0.0.1:8000/static/data/browse.json"
-DISA_DJ__SUPER_USERS_JSON='[]'
-DISA_DJ__STAFF_USERS_JSON='["developer@example.org"]'
+
+####################
+## auth
+####################
+
+DISA_DJ__SUPER_USERS_JSON='[
+]'
+
+DISA_DJ__STAFF_USERS_JSON='
+[
+  "eppn@domain.edu"
+]'
+
 DISA_DJ__STAFF_GROUP="disa_data_editors"
-DISA_DJ__TEST_META_DCT_JSON='{"Shibboleth-eppn":"developer@example.org","Shibboleth-brownNetId":"example_user","Shibboleth-mail":"developer@example.org","Shibboleth-givenName":"Example","Shibboleth-sn":"User"}'
-DISA_DJ__LOGIN_PROBLEM_EMAIL="support@example.org"
-DISA_DJ__BROWSE_USERPASS_JSON='[{"example_username":"example_password"}]'
-DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+
+DISA_DJ__TEST_META_DCT_JSON='{
+  "Shibboleth-eppn": "eppn@domain.edu",
+  "Shibboleth-brownNetId": "First_Last",
+  "Shibboleth-mail": "first_last@domain.edu",
+  "Shibboleth-givenName": "First",
+  "Shibboleth-sn": "Last"
+}'
+
+DISA_DJ__LOGIN_PROBLEM_EMAIL="sr_problems@domain.edu"
+
+####################
+## basic auth
+####################
+
+DISA_DJ__BROWSE_USERPASS_JSON='[
+  { "example_username": "example_password" }
+]'
+
+####################
+## db
+####################
+
+DISA_DJ__DATABASE_URL="mysql+pymysql://user:user@db:3306/stolenrelations"
+
+####################
+## TEMP GROUPS (TODO - document what this is; remove if not needed)
+####################
+
 DISA_DJ__TEMP_GROUPS_ENABLED_JSON="true"
+
+## end ========================================================================
