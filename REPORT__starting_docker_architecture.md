@@ -1,6 +1,8 @@
 # Starting Docker architecture
 
-Analysis date: September 6, 2026. Application inspected: `disa_dj_project`, branch `main`, commit `45bd376bd43195fdc1cd0c097d50c0638e25ac79`.
+Repository naming update: paths, links, and any reproduced prompts below use the current name `sr_input_form`. Existing local checkout directory names may differ. Historical implementation findings otherwise retain their original scope.
+
+Analysis date: September 6, 2026. Application inspected: `sr_input_form`, branch `main`, commit `45bd376bd43195fdc1cd0c097d50c0638e25ac79`.
 
 The current configuration describes a three-container development environment: Django, MySQL, and Adminer. It still installs Python dependencies with pip from `config/requirements_local.txt`. Neither `pyproject.toml` nor `uv.lock` participates in its build or startup.
 
@@ -27,7 +29,7 @@ The original application checkout, Docker configuration, host databases, logs, a
 
 ## Components and data flow
 
-The primary source is [docker-compose.yml](disa_dj_project/docker-compose.yml).
+The primary source is [docker-compose.yml](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/docker-compose.yml).
 
 | Service | What supplies it | Purpose | Published host port | Configured container name |
 | --- | --- | --- | --- | --- |
@@ -56,13 +58,13 @@ There are **two independent database configurations**:
 
 Adminer connects to MySQL; this Compose configuration does not give it access to Django's SQLite file. The published MySQL port allows host database clients to connect, but communication from `web` and Adminer uses the internal service address `db:3306`.
 
-Compose also supplies `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to `web`. Repository searches found no application reads of these variables. Changing them alone does not change either effective database connection. See [config/settings.py](disa_dj_project/config/settings.py), [settings_app.py](disa_dj_project/disa_app/settings_app.py), and [settings_localdev_env.sh](disa_dj_project/config/settings_localdev_env.sh).
+Compose also supplies `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` to `web`. Repository searches found no application reads of these variables. Changing them alone does not change either effective database connection. See [config/settings.py](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/config/settings.py), [settings_app.py](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/settings_app.py), and [settings_localdev_env.sh](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/config/settings_localdev_env.sh).
 
 The sibling repositories are part of this architecture, even though they are separate Git repositories:
 
 ```text
 outer-directory/
-├── disa_dj_project/                 # application; README uses sr_input_form
+├── sr_input_form/                   # application; local checkout names may differ
 ├── sr_dkr_sql-database/             # MySQL Docker build and SQL dump
 ├── stolen_relations_start_data/     # Django SQLite seed and browse JSON
 ├── DBs/                            # working Django database
@@ -76,7 +78,7 @@ The current companion database Dockerfile uses `FROM mysql:8.0`, copies its back
 
 ### Web image
 
-[Dockerfile](disa_dj_project/Dockerfile) and [Dockerfile.dev](disa_dj_project/Dockerfile.dev) have the same application setup:
+[Dockerfile](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/Dockerfile) and [Dockerfile.dev](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/Dockerfile.dev) have the same application setup:
 
 1. Start with `python:3.9`.
 2. Disable Python bytecode writes and enable unbuffered output.
@@ -110,7 +112,7 @@ Compose replaces the image command with a Bash command that:
 
 The copy operations are linked with `&&`, so a failed required copy prevents the server from starting. There is no automatic `migrate`, `collectstatic`, or account-creation management command. The seeded SQLite database is expected to supply Django's existing schema and accounts. Application migrations are ignored by `.gitignore` and none are tracked at the inspected commit.
 
-The browse subprocess queries both databases and writes the compact and formatted browse JSON. The launcher does not wait for completion or check the child's exit status. A successful server startup therefore does not establish that browse generation succeeded. Generation runs once per web-container startup, not continuously after every edit, and writes directly to the destination files. [Generation launcher](disa_dj_project/disa_app/lib/generate_browse_data_in_background.py), [generator](disa_dj_project/disa_app/lib/generate_browse_data.py).
+The browse subprocess queries both databases and writes the compact and formatted browse JSON. The launcher does not wait for completion or check the child's exit status. A successful server startup therefore does not establish that browse generation succeeded. Generation runs once per web-container startup, not continuously after every edit, and writes directly to the destination files. [Generation launcher](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/lib/generate_browse_data_in_background.py), [generator](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/lib/generate_browse_data.py).
 
 The MySQL health check runs `mysqladmin ping`, but the short `depends_on` declarations do not wait for health. Web's TCP loop provides its own connection wait; it does not explicitly verify application credentials or schema. Adminer has only the startup ordering dependency. [Docker's startup-order explanation](https://docs.docker.com/compose/how-tos/startup-order/).
 
@@ -136,13 +138,13 @@ No reverse proxy, Shibboleth service, mail server, frontend build service, or sc
 
 ## Assessment of the README
 
-The [README's Docker instructions](disa_dj_project/README.md) broadly match the source: clone three repositories as siblings, start Compose from the application, and visit ports 8000 and 8080. **That overall approach worked with the current companion repositories and unchanged Dockerfiles/startup command.** The experiment used an isolated copy, alternate loopback ports, and Compose's current `docker compose` spelling; it was not a literal run against the original checkout and fixed container names.
+The [README's Docker instructions](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/README.md) broadly match the source: clone three repositories as siblings, start Compose from the application, and visit ports 8000 and 8080. **That overall approach worked with the current companion repositories and unchanged Dockerfiles/startup command.** The experiment used an isolated copy, alternate loopback ports, and Compose's current `docker compose` spelling; it was not a literal run against the original checkout and fixed container names.
 
 | README statement or omission | Assessment |
 | --- | --- |
 | Docker must be installed and running | Essential. The first attempt stopped here; after the user installed and started Docker Desktop, building and startup succeeded. |
 | Clone both data repositories beside the application | Correct. Neither was initially present at the expected path here; both were obtained in the separate experiment directory. Access to private starter data is a prerequisite. |
-| Clone `sr_input_form`, then enter `sr_input_form` | Older application name. This checkout's origin is `Brown-University-Library/disa_dj_project`. Using the current name directly avoids relying on a GitHub rename redirect, which was not tested. The application folder's basename is flexible because Compose mounts it as `code`. |
+| Clone `sr_input_form`, then enter `sr_input_form` | Correct current repository name, as confirmed by the user after this analysis. The inspected checkout's origin still used a former name; that local setting did not establish the current GitHub name. The application folder's basename is flexible because Compose mounts it as `code`. |
 | Run `docker-compose up` | The standalone hyphenated command validated the configuration during the first attempt. The successful run used Docker Desktop's `docker compose up --build --detach`. |
 | This creates “the container” | It defines three containers, including Adminer and MySQL. |
 | Visit `/version/` and `/login/` | Useful first checks, but neither proves that historical data is queryable, saves work, or browse generation completed. `/version/` also needs the Git executable and checkout metadata. |
@@ -223,11 +225,11 @@ Exact seed SHA-256 hashes are retained in `seed-hashes.json`. Built web/database
 
 The stack remains running on loopback ports for inspection. Its directory is restricted to the local user because it contains private starter data. No original application files or host data were changed; all accounts, edits, deletion markers, generated files, and backups created during the run belong to the temporary copy.
 
-The full Python test suite was not run for this analysis-only task; the checks above exercised the disposable running stack. The existing `DockerTest` checks whether requirements files referenced by the two Dockerfiles exist; it does not build containers, validate Compose startup, or exercise the running interface. [Existing Docker test](disa_dj_project/disa_app/tests/test_other.py).
+The full Python test suite was not run for this analysis-only task; the checks above exercised the disposable running stack. The existing `DockerTest` checks whether requirements files referenced by the two Dockerfiles exist; it does not build containers, validate Compose startup, or exercise the running interface. [Existing Docker test](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/tests/test_other.py).
 
 ## Functionality to compare after the upgrade
 
-The running application offers two main workflows: entering historical sources and their associated records/people/groups, and exploring generated browse data. Django admin and Adminer are separate administrative interfaces. The map and timeline use their own static datasets. The public `stolenrelations.org` website itself is not part of this Compose stack. Route definitions are in [config/urls.py](disa_dj_project/config/urls.py).
+The running application offers two main workflows: entering historical sources and their associated records/people/groups, and exploring generated browse data. Django admin and Adminer are separate administrative interfaces. The map and timeline use their own static datasets. The public `stolenrelations.org` website itself is not part of this Compose stack. Route definitions are in [config/urls.py](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/config/urls.py).
 
 ### Verified functionality
 
@@ -261,7 +263,7 @@ The retained source is titled **DOCKER BASELINE 2026-09-06 — disposable source
 
 Two browser-console errors occurred with the existing application code:
 
-1. First saving a new record raised `TypeError: Cannot read properties of undefined (reading 'locations')` at [entry_form_vue-item_mixin_save.js](disa_dj_project/disa_app/static/js/entry_form_vue-item_mixin_save.js), line 477. The new-record endpoint returns a redirect value, while the shared save handler subsequently reads `dataJSON.rec.locations`. That mismatch is visible in [view_data_records_manager.py](disa_dj_project/disa_app/lib/view_data_records_manager.py), around line 218. The new record was created and its text persisted despite the client-side error.
+1. First saving a new record raised `TypeError: Cannot read properties of undefined (reading 'locations')` at [entry_form_vue-item_mixin_save.js](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/static/js/entry_form_vue-item_mixin_save.js), line 477. The new-record endpoint returns a redirect value, while the shared save handler subsequently reads `dataJSON.rec.locations`. That mismatch is visible in [view_data_records_manager.py](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/lib/view_data_records_manager.py), around line 218. The new record was created and its text persisted despite the client-side error.
 2. Reloading the editor after adding the individual/group emitted a Vue render error, `TypeError: Cannot read properties of undefined (reading 'value')`. The underlying field was not diagnosed. The saved source, record, individual, and group values were independently verified, but this does not establish that every editor widget rendered correctly.
 
 Some browse narratives also displayed a raw GeoJSON point or a location identifier such as `Q1787188` in location text. This was visible with the current dataset and code. These observations belong in the baseline; none was repaired as part of this analysis.
@@ -274,7 +276,7 @@ Source inspection also identifies existing features with limited or uncertain us
 
 ### Comparison details that can otherwise look like regressions
 
-The simulated Shibboleth helper recognizes `127.0.0.1`, `localhost`, those names with `:8000`, and `testserver`. It does **not** recognize `127.0.0.1:18000`. For an HTTP-level check through the alternate port, explicitly sending `Host: 127.0.0.1:8000` preserves that branch. A normal browser at port 18000 needs a disposable username/password account or a local forwarding arrangement that preserves the recognized host. This is existing application behavior. [Authentication helper](disa_dj_project/disa_app/lib/shib_auth.py).
+The simulated Shibboleth helper recognizes `127.0.0.1`, `localhost`, those names with `:8000`, and `testserver`. It does **not** recognize `127.0.0.1:18000`. For an HTTP-level check through the alternate port, explicitly sending `Host: 127.0.0.1:8000` preserves that branch. A normal browser at port 18000 needs a disposable username/password account or a local forwarding arrangement that preserves the recognized host. This is existing application behavior. [Authentication helper](https://github.com/Brown-University-Library/sr_input_form/blob/45bd376bd43195fdc1cd0c097d50c0638e25ac79/disa_app/lib/shib_auth.py).
 
 The browse proxy's configured `http://127.0.0.1:8000/static/data/browse.json` is requested by Python inside the web container. It should retain the internal port 8000 when only the published host port changes. Browser pages mostly use relative routes; avoid changing all occurrences of 8000 indiscriminately.
 
@@ -400,7 +402,7 @@ Context:
 
 - Before making changes to the project, I want to understand it's docker setup. 
 
-- Note that there are docker startup instructions in the `disa_dj_project/README.md` -- I think they're accurate -- but I'm not sure.
+- Note that there are docker startup instructions in the `sr_input_form/README.md` -- I think they're accurate -- but I'm not sure.
 
 Tasks:
 
@@ -410,7 +412,7 @@ Tasks:
 
 - If it works, make some notes about the functionality it offers once it's up and running. The purpose of this will be to be able to compare an upgraded "tomlized" version of the docker setup -- to ensure existing functionality isn't degraded. Save these notes to an appropriate section of the `REPORT__starting_docker_architecture.md` file.
 
-- A colleague told me that ze thought the `disa_dj_project/Dockerfile.dev` wasn't even used in a functional way, and could probably be removed. Include an analysis of this in your report.
+- A colleague told me that ze thought the `sr_input_form/Dockerfile.dev` wasn't even used in a functional way, and could probably be removed. Include an analysis of this in your report.
 
 - Before starting the analysis, ask me one or two clarifying questions.
 

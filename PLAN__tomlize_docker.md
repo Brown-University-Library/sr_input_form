@@ -1,5 +1,7 @@
 # Plan to tomlize Docker development
 
+Repository naming update: paths, links, and any reproduced prompts below use the current name `sr_input_form`. Existing local checkout directory names may differ. Historical implementation findings otherwise retain their original scope.
+
 Prepared September 6, 2026, from branch `uv-docker-dev` at `a5aaa48d`. This is an implementation plan; preparing it does not change dependencies, environment files, application code, or containers.
 
 Use the existing `pyproject.toml` and `uv.lock` for Docker as well as host and server work. Replace the Docker dependency installation with `uv sync`, load application settings from a mounted `.env` through the already-pinned `python-dotenv==1.0.1`, and remove the retired requirements and shell-settings workflow after validation. First make the declared Python 3.8 environment work; keep the intended future Python and package upgrades separate.
@@ -97,7 +99,7 @@ outer-directory/
 ├── .env                     # existing host/server settings
 ├── docker/
 │   └── .env                 # Docker development settings
-├── disa_dj_project/
+├── sr_input_form/
 ├── stolen_relations_start_data/
 ├── DBs/
 ├── logs/
@@ -192,9 +194,9 @@ Goal: Make a plan to tomlize this project by managing dependencies via `uv` and 
 
 Context:
 
-- Note that there has been one commit already to this branch, the removal of the file `disa_dj_project/Dockerfile.dev`.
+- Note that there has been one commit already to this branch, the removal of the file `sr_input_form/Dockerfile.dev`.
 
-- Review `disa_dj_project/REPORT__starting_docker_architecture.md` for a good overview of the starting-state of this project (before the `Dockerfile.dev` removal).
+- Review `sr_input_form/REPORT__starting_docker_architecture.md` for a good overview of the starting-state of this project (before the `Dockerfile.dev` removal).
 
 - I have a memory that in my early days of coming up with the Dockerfile, I had an problem getting something to run under python-3.8 -- so, for the Dockerfile, went with python-3.9.
 
@@ -207,7 +209,7 @@ Tasks:
   - retiring all use of `pip` and various `requirements` files in favor of using `uv` and `pyproject.toml`.
   - using a `.env` file to load envars via the python-package specified in the `pyproject.toml` file.
 
-- Save the plan to `disa_dj_project/PLAN__tomlize_docker.md`
+- Save the plan to `sr_input_form/PLAN__tomlize_docker.md`
 
 - Add to the plan any tricky issues you foresee, and a tentative approach or two to resolving them.
 
