@@ -36,11 +36,11 @@ Docker, host development, and server deployments all use `pyproject.toml`, `uv.l
 
 Install and start Docker with Linux-container support: Docker Desktop on Apple Silicon Macs or Windows (normally WSL 2), or Docker Engine with the Compose plugin on Linux. No host Python or uv installation is required. The web image supports Linux ARM64 and AMD64; Docker selects the architecture automatically. Intel Macs are outside the required support scope. On Windows, use a WSL terminal for these commands and preferably keep the checkout in the WSL filesystem. Allow Docker access to the enclosing directory when prompted. The startup commands run in Bash inside the Linux container.
 
-Create an enclosing directory, then clone the three repositories as siblings. Access to the private starter-data repository is required:
+The examples use `sr_input_form_stuff` for the enclosing directory; existing installations can keep their current directory name. Create that enclosing directory, then clone the three repositories as siblings. Access to the private starter-data repository is required:
 
 ```bash
-mkdir disa_dj_stuff
-cd disa_dj_stuff
+mkdir sr_input_form_stuff
+cd sr_input_form_stuff
 git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git
 git clone --depth 1 git@github.com:Brown-University-Library/sr_dkr_sql-database.git
 git clone git@github.com:Brown-University-Library/sr_input_form.git
@@ -68,7 +68,7 @@ Compose mounts only the application checkout, DBs, logs, cache directory, read-o
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it is not already available. Then enter the Git repository from the enclosing outer directory:
 
 ```bash
-cd /path/to/disa_dj_stuff/
+cd /path/to/sr_input_form_stuff/
 git clone git@github.com:Brown-University-Library/sr_input_form.git
 cd ./sr_input_form/
 ```
@@ -79,7 +79,7 @@ Create the outer environment file once, then review every value and path before 
 cp sample_dot_env.txt ../.env
 ```
 
-The real `.env` belongs in `disa_dj_stuff/`, one directory above this Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
+The real `.env` belongs in `sr_input_form_stuff/`, one directory above this Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
 
 Install the locked local dependencies and verify Django:
 
