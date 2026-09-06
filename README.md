@@ -59,7 +59,7 @@ Keep the example SQLAlchemy URL pointed to service `db:3306` and its development
 
 The `web.command` block in `docker-compose.yml` checks the mounted dependency declarations offline, waits up to 180 seconds for MySQL's TCP port, copies missing SQLite and browse seed files, launches browse generation, and starts Django. It preserves existing working files. Starter files are `dj_disa.db`, `browse.json`, and `browse_formatted.json`; the companion MySQL build needs `sr_inserts_together.sql`. No automatic migrations or account creation run.
 
-Once you see the terminal activity stop, showing `django-web-container  | starting info()`, open <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> or <http://127.0.0.1:8000/login/>. Adminer is at <http://127.0.0.1:8080/>: server `db`, database `stolenrelations`, user/password `user`/`user` for the example setup.
+Once you see the terminal activity stop, open <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> or <http://127.0.0.1:8000/login/>. Adminer is at <http://127.0.0.1:8080/>: server `db`, database `stolenrelations`, user/password `user`/`user` for the example setup.
 
 Compose mounts only the application checkout, DBs, logs, cache directory, read-only starter data, and the writable Docker settings directory. Inside the image, `/sr_project_stuff/.env` points to `/sr_project_stuff/docker/.env`; Python parses the file created in that mounted directory. The host/server `../.env` stays separate. MySQL's entrypoint still receives its own `MYSQL_*` values from Compose.
 
