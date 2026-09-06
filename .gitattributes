@@ -1,0 +1,2 @@
+# Bash runs inside Linux containers even when the checkout is on Windows.
+*.sh text eol=lf

@@ -12,6 +12,8 @@ For the full list of settings and their values, see
 import json, logging, os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 log = logging.getLogger(__name__)
 
 
@@ -20,14 +22,11 @@ BASE_DIR = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )
 # log.debug( f'BASE_DIR, ``{BASE_DIR}``' )
 # BASE_DIR is the path to the project (no end-slash)
 
-## load outer dotenv settings for uv-based local and server use
+## load the outer dotenv file for host, server, and Docker use
 DOTENV_PATH = Path(BASE_DIR).parent / '.env'
-if 'DISA_DJ__ENV_SETTINGS_PATH' not in os.environ:
-    from dotenv import load_dotenv
-
-    if not DOTENV_PATH.is_file():
-        raise RuntimeError(f'Required dotenv file not found: {DOTENV_PATH}')
-    load_dotenv(dotenv_path=DOTENV_PATH, override=True)
+if not DOTENV_PATH.is_file():
+    raise RuntimeError(f'Required dotenv file not found: {DOTENV_PATH}')
+load_dotenv(dotenv_path=DOTENV_PATH, override=True)
 
 REQUIRED_ENVIRONMENT_KEYS = (
     'DISA_DJ__SECRET_KEY',

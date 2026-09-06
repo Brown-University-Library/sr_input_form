@@ -15,10 +15,10 @@ services:
     volumes:
       - ../sr_dkr_sql-database/backups:/sr-backups
     # - db_data:/var/lib/mysql
-    # Only needed if you want to connect from your host machine (e.g., local MySQL client).
+    ## Only needed if you want to connect from your host machine (e.g., local MySQL client).
     ports:
       - "3306:3306"
-    healthcheck: # check the healthiness with the following configuration
+    healthcheck: ## Check whether MySQL responds.
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       # interval: 30s
       timeout: 600s
@@ -37,45 +37,85 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: django-web-container
+    ## Keep startup here; double dollar signs defer expansion to container Bash.
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -euo pipefail
+
+        cd /sr_project_stuff/code
+
+        if ! uv sync --locked --offline --no-default-groups --group local --managed-python --no-python-downloads; then
+            echo 'Docker environment does not match this checkout. Update uv.lock, then run docker compose up --build.' >&2
+            exit 1
+        fi
+
+        if [[ ! -e ../docker/.env && ! -L ../docker/.env ]]; then
+            ## Preserve the sample's ownership so the host developer can edit the new file.
+            cp -p -n sample_dot_env_docker.txt ../docker/.env
+            echo 'Created ../docker/.env from the Docker development sample. Edit it and restart web to customize settings.'
+        fi
+
+        if [[ ! -f ../docker/.env || -L ../docker/.env ]]; then
+            echo 'Docker settings must be a regular file at ../docker/.env, not a directory or symbolic link.' >&2
+            exit 1
+        fi
+
+        ## Copy a starter file only when its working destination is missing.
+        copy_seed_if_missing() {
+            if [[ ! -f "$$2" ]]; then
+                cp "$$1" "$$2"
+            fi
+        }
+
+        ## Seeds are initial files from the stolen_relations_start_data repository:
+        ## dj_disa.db supplies the initial Django SQLite database; the two browse JSON
+        ## files supply initial browse data until the generator produces fresh output.
+        ## Check these files before waiting for MySQL; preserve existing working files.
+        for seed in dj_disa.db browse_formatted.json browse.json; do
+            case "$$seed" in
+                dj_disa.db) destination=../DBs/dj_disa.sqlite ;;
+                *) destination="./disa_app/static/data/$$seed" ;;
+            esac
+            if [[ ! -f "$$destination" && ! -f "../stolen_relations_start_data/$$seed" ]]; then
+                echo "Missing starter file: ../stolen_relations_start_data/$$seed. Clone stolen_relations_start_data first." >&2
+                exit 1
+            fi
+        done
+
+        echo 'Waiting for MySQL at db:3306...'
+        deadline=$$((SECONDS + 180))
+        until (echo > /dev/tcp/db/3306) >/dev/null 2>&1; do
+            if (( SECONDS >= deadline )); then
+                echo 'MySQL did not become reachable within 180 seconds. Check docker compose logs db.' >&2
+                exit 1
+            fi
+            sleep 1
+        done
+
+        copy_seed_if_missing ../stolen_relations_start_data/dj_disa.db ../DBs/dj_disa.sqlite
+        copy_seed_if_missing ../stolen_relations_start_data/browse_formatted.json ./disa_app/static/data/browse_formatted.json
+        copy_seed_if_missing ../stolen_relations_start_data/browse.json ./disa_app/static/data/browse.json
+
+        uv run --no-sync disa_app/lib/generate_browse_data_in_background.py
+        exec uv run --no-sync manage.py runserver 0.0.0.0:8000
     volumes:
-      - ../:/sr_project_stuff
       - ../DBs:/sr_project_stuff/DBs
       - ../logs:/sr_project_stuff/logs
       - .:/sr_project_stuff/code
+      - ../cache_dir:/sr_project_stuff/cache_dir
+      - ../stolen_relations_start_data:/sr_project_stuff/stolen_relations_start_data:ro
+      - ../docker:/sr_project_stuff/docker
     ports:
       - "8000:8000"
 
     environment:
-      - FOO_KEY=bar_val
-      - DISA_DJ__ENV_SETTINGS_PATH=config/settings_localdev_env.sh
-      - PYTHONPATH=/sr_project_stuff
-
-      # Point Django/app to MySQL service name "db"
-      - DB_HOST=db
-      - DB_PORT=3306
-      - DB_NAME=stolenrelations
-      - DB_USER=user
-      - DB_PASSWORD=user
-
-    env_file: ./config/settings_localdev_env.sh
+      PYTHONPATH: /sr_project_stuff
 
     depends_on:
       - db
 
-    ## copies the starting DBs from the git-cloned start-data if necessary
-    ## ...then copies the big json files from the git-cloned start-data if necessary
-    ## ...then starts a _background_ process to update the big json files
-    ## ...then calls runserver.
-    command: /bin/bash -c "
-      echo 'Waiting for MySQL at db:3306...' \
-      && until (echo > /dev/tcp/db/3306) >/dev/null 2>&1; do sleep 1; done \
-      && echo 'MySQL is up.' \
-      && if test -f ../DBs/dj_disa.sqlite; then echo 'dj_disa.sqlite-file-exists-not-copying'; else cp ../stolen_relations_start_data/dj_disa.db ../DBs/dj_disa.sqlite; fi
-      && if test -f ./disa_app/static/data/browse_formatted.json; then echo 'browse_formatted.json-file-exists-not-copying'; else cp ../stolen_relations_start_data/browse_formatted.json ./disa_app/static/data/browse_formatted.json; fi
-      && if test -f ./disa_app/static/data/browse.json; then echo 'browse.json-file-exists-not-copying'; else cp ../stolen_relations_start_data/browse.json ./disa_app/static/data/browse.json; fi
-      && python disa_app/lib/generate_browse_data_in_background.py 
-      && python manage.py runserver 0.0.0.0:8000
-      "
 
 volumes:
   db_data:
