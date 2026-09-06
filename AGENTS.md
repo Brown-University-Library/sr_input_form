@@ -20,19 +20,20 @@ If other instruction files exist and conflict with this file, follow this file a
 
 - Primary language: Python
 - Target runtime: Python 3.8, as specified by `pyproject.toml`
-- Dependency and execution tool for local and server work: `uv`
+- Dependency and execution tool for Docker, local, and server work: `uv`
 - The repository root is the directory containing this file, `.git/`, and `manage.py`.
-- Phase 1 keeps the existing pip-based Docker files and requirements unchanged.
+- Docker installs uv-managed Python 3.8.20; preserve the shared TOML Python range unless explicitly asked to change it.
 
 ## How to run code
 
 - Assume the user is in the repository root.
-- Do not activate a virtual environment or source `config/settings_localdev_env.sh` for uv-based work.
+- Do not activate a virtual environment or source shell settings files.
 - Run a script via: `uv run ./path_to_script.py --help`
 - Run tests via: `uv run ./run_tests.py`
 - Run a selected test via: `uv run ./run_tests.py disa_app.tests.test_module`
 - Run Django management commands via: `uv run ./manage.py THE-COMMAND`
-- The outer `../.env` supplies settings for uv-based work.
+- Host/server settings come from `../.env`; Docker mounts `../docker/`, creates its missing `.env` from the tracked Docker sample, and exposes it through `/sr_project_stuff/.env`. Existing files are preserved. File values override inherited application settings.
+- Docker commands use `docker compose exec web uv run --locked --offline --group local ...`; dependencies live at `/opt/venv`, managed Python at `/opt/python`. Rebuild after dependency changes.
 
 ## Coding directives (Python)
 
@@ -137,9 +138,9 @@ If other instruction files exist and conflict with this file, follow this file a
 ## Agent project index
 
 - `manage.py`: Django command entry point.
-- `config/settings.py`: loads the outer `.env` for uv/server work; Docker keeps using the variables supplied by Compose.
+- `config/settings.py`: loads the outer `.env` unconditionally for host, server, and Docker work.
 - `config/settings_test.py`: replaces Django's database with in-memory SQLite and accepts the temporary SQLAlchemy fixture URL from `run_tests.py`.
-- `config/passenger_wsgi.py`: WSGI entry point. It does not parse shell settings after Phase 1.
+- `config/passenger_wsgi.py`: WSGI entry point. Uses the same dotenv settings loader.
 - `config/urls.py`: endpoint routing.
 - `disa_app/views.py`: endpoint handlers.
 - `disa_app/lib/`: most application and data-handling logic.
@@ -149,6 +150,5 @@ If other instruction files exist and conflict with this file, follow this file a
 - `disa_app/tests/`: Django tests; SQLAlchemy-backed tests use the generated SQLite fixture.
 - `disa_app/tests/sqlalchemy_fixture_builder.py`: creates the SQLAlchemy schema and synthetic rows required by tests.
 - `disa_app/static/data/`: generated browse and denormalized JSON files; large generated files are ignored.
-- `config/requirements_*.txt`: retained for the Phase 1 Docker workflow, not authoritative for uv.
-- `pyproject.toml` and `uv.lock`: authoritative dependency declarations for uv-based local and server work.
+- `pyproject.toml` and `uv.lock`: authoritative dependency declarations for Docker, local, and server work.
 - The enclosing outer directory contains `.env`, databases, logs, caches, and the deployment caller. Do not copy sensitive outer-directory values into this public repository.
