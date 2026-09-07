@@ -4,10 +4,27 @@
 
 - [Glossary](#glossary)
 - [Installation](#installation)
+  - [Approach 1: Docker development](#approach-1-docker-development)
+  - [Approach 2: Local development with uv](#approach-2-local-development-with-uv)
+  - [Where settings live](#where-settings-live)
 - [Typical usage](#typical-usage)
+  - [Starting and stopping](#starting-and-stopping)
+  - [After changing settings or dependencies](#after-changing-settings-or-dependencies)
+  - [Other useful pages](#other-useful-pages)
 - [Checks and tests (optional)](#checks-and-tests-optional)
+  - [Docker: use a second terminal](#docker-use-a-second-terminal)
+  - [Local uv development](#local-uv-development)
 - [Dependency and settings conventions](#dependency-and-settings-conventions)
 - [Notes for those of us who don't know Django](#notes-for-those-of-us-who-dont-know-django)
+  - [sr_input_form/config/settings.py](#sr_input_formconfigsettingspy)
+  - [sr_input_form/config/urls.py](#sr_input_formconfigurlspy)
+  - [sr_input_form/disa_app/admin.py](#sr_input_formdisa_appadminpy)
+  - [sr_input_form/disa_app/disa_app_templates](#sr_input_formdisa_appdisa_app_templates)
+  - [sr_input_form/disa_app/lib](#sr_input_formdisa_applib)
+  - [sr_input_form/disa_app/models_sqlalchemy.py](#sr_input_formdisa_appmodels_sqlalchemypy)
+  - [sr_input_form/disa_app/models.py](#sr_input_formdisa_appmodelspy)
+  - [sr_input_form/disa_app/settings_app.py](#sr_input_formdisa_appsettings_apppy)
+  - [sr_input_form/disa_app/views.py](#sr_input_formdisa_appviewspy)
 
 ## Glossary
 
