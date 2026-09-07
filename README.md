@@ -47,9 +47,11 @@ In that same terminal, start the app:
 docker compose up --build
 ```
 
-**Leave this terminal running.** The command displays logs and does not return a prompt while the app is running. The first build and database setup can take several minutes. Once you see `Starting development server at http://0.0.0.0:8000/`, open <http://127.0.0.1:8000/info/> in your browser. Browse data continues updating in the background, so the logs do not need to become quiet.
+**Leave this terminal running.** The command displays logs and does not return a prompt while the app is running. The first build and database setup can take several minutes.
 
-Docker creates the working directories and copies `sample_dot_env.txt` to `../docker/.env` if that file is missing. Existing settings and databases are preserved. The sample is ready for the supplied Docker development databases.
+The webapp then starts while a background job generates browse data, producing many location-related messages. You can use the webapp while those messages continue. Try opening <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> in your browser. A benefit of the `version` url is that you can confirm you're on the branch and commit you expect. If the url you try isn’t available yet, wait briefly and refresh. You can also wait for the initial flood of messages to subside, although the terminal may continue logging your browser activity. 
+
+Docker creates the working directories and copies `sample_dot_env.txt` to `../docker/.env` if that file is missing.
 
 Press **Control-C in this terminal when you want to stop the app**. This stops the web app and its supporting services. To run checks or other commands while the app is running, open a second terminal as described below.
 
