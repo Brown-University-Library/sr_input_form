@@ -34,17 +34,17 @@ Docker, host development, and server deployments all use `pyproject.toml`, `uv.l
 
 ### Approach 1: Docker development
 
-Install and start Docker with Linux-container support: Docker Desktop on Apple Silicon Macs or Windows (normally WSL 2), or Docker Engine with the Compose plugin on Linux. No host Python or uv installation is required. The web image supports Linux ARM64 and AMD64; Docker selects the architecture automatically. Intel Macs are outside the required support scope. On Windows, use a WSL terminal for these commands and preferably keep the checkout in the WSL filesystem. Allow Docker access to the enclosing directory when prompted. The startup commands run in Bash inside the Linux container.
+Install and start Docker with Linux-container support: Docker Desktop on Apple Silicon Macs or Windows (normally WSL 2), or Docker Engine with the Compose plugin on Linux. No host Python or uv installation is required. The web image supports Linux ARM64 and AMD64; Docker selects the architecture automatically. Intel Macs are not supported. On Windows, use a WSL terminal for these commands and preferably keep the checkout in the WSL filesystem. Allow Docker access to the enclosing directory when prompted. The startup commands run in Bash inside the Linux container.
 
 The examples use `sr_input_form_stuff` for the enclosing directory; existing installations can keep their current directory name. Create that enclosing directory, then clone the three repositories as siblings. Access to the private starter-data repository is required:
 
 ```bash
-mkdir sr_input_form_stuff
-cd sr_input_form_stuff
+mkdir ./sr_input_form_stuff/
+cd ./sr_input_form_stuff/
 git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git
 git clone --depth 1 git@github.com:Brown-University-Library/sr_dkr_sql-database.git
 git clone git@github.com:Brown-University-Library/sr_input_form.git
-cd sr_input_form
+cd ./sr_input_form/
 ```
 
 Start Docker with the supplied development defaults:
@@ -53,11 +53,7 @@ Start Docker with the supplied development defaults:
 docker compose up --build
 ```
 
-Compose creates `DBs/`, `logs/`, `cache_dir/`, and `docker/` in the enclosing directory as needed. On first startup, the web container copies `sample_dot_env.txt` to `../docker/.env`. Existing settings are preserved. To customize them, edit `../docker/.env` and run `docker compose restart web`. You can also supply that file before the first startup.
-
-Keep the example SQLAlchemy URL pointed to service `db:3306` and its development credentials aligned with MySQL's `MYSQL_*` values in Compose. Django separately uses `../DBs/dj_disa.sqlite`. Keep browse proxy URLs on internal port 8000 even if you change a published host port. The example identities and passwords are for development; use the team's supplied seed account or create an account with the appropriate application profile.
-
-The `web.command` block in `docker-compose.yml` checks the mounted dependency declarations offline, waits up to 180 seconds for MySQL's TCP port, copies missing SQLite and browse seed files, launches browse generation, and starts Django. It preserves existing working files. Starter files are `dj_disa.db`, `browse.json`, and `browse_formatted.json`; the companion MySQL build needs `sr_inserts_together.sql`. No automatic migrations or account creation run.
+Compose creates `DBs/`, `logs/`, `cache_dir/`, and `docker/` in the enclosing directory as needed. On first startup, the web container copies `sample_dot_env.txt` to `../docker/.env`, keeping the sample settings. You shouldn't have to customize the `../docker/.env` settings, but if you want to, edit them, then run `docker compose restart web`. 
 
 Once you see the terminal activity stop, open <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> or <http://127.0.0.1:8000/login/>. Adminer is at <http://127.0.0.1:8080/>: server `db`, database `stolenrelations`, user/password `user`/`user` for the example setup.
 
@@ -75,21 +71,19 @@ git clone git@github.com:Brown-University-Library/sr_input_form.git
 cd ./sr_input_form/
 ```
 
-Create the outer environment file once, then review every value and path before running the application:
+Create the outer envar file once, then review each value before running the application:
 
 ```bash
 cp sample_dot_env.txt ../.env
 ```
 
-The shared sample uses Docker's MySQL connection by default. For local SQLite use, edit the copied `../.env` and replace its `DISA_DJ__DATABASE_URL` assignment with:
+The sample_dot_env.txt file uses Docker's MySQL connection by default. For local SQLite use, edit the copied `../.env` and replace its `DISA_DJ__DATABASE_URL` assignment with:
 
 ```dotenv
 DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
 ```
 
 Adjust the path to your existing SQLAlchemy database. Django's separate database path remains in `DISA_DJ__DATABASES_JSON`; provide both databases before starting the application.
-
-Reminder: the real `.env` belongs in `sr_input_form_stuff/`, one directory above the Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
 
 Install the locked local dependencies and verify Django:
 
@@ -104,10 +98,16 @@ Start the development server:
 uv run ./manage.py runserver
 ```
 
+### Intstallation note
+
+Reminder: the real `.env` belongs in `sr_input_form_stuff/`, one directory above the Git repository. It's ok if it contains local sensitive values, because this outer directory is not committed to GitHub. 
+
 
 ## Typical usage
 
 ### Docker
+
+_Assumes docker is installed and running._
 
 From the application directory:
 
