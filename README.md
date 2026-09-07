@@ -55,6 +55,8 @@ Docker creates the working directories and copies `sample_dot_env.txt` to `../do
 
 Press **Control-C in this terminal when you want to stop the app**. This stops the web app and its supporting services. To run checks or other commands while the app is running, open a second terminal as described below.
 
+Note: This docker-installation is for **local development only**. The minimalist base debian image used is known to have critical and high vulnerabilities, and Django's documentation clearly indicates that its built-in webserver is for local development only.
+
 ### Approach 2: Local development with uv
 
 Use this approach if you want to run Python directly on your computer. You need Git, GitHub SSH access, and [uv](https://docs.astral.sh/uv/getting-started/installation/). Obtain the two development SQLite databases from the team; cloning the code alone does not provide them.
