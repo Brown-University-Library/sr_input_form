@@ -4,8 +4,8 @@
 
 - [Glossary](#glossary)
 - [Installation](#installation)
+- [Checks and tests (optional)](#checks-and-tests-optional)
 - [Typical usage](#typical-usage)
-- [Running tests with uv](#running-tests-with-uv)
 - [Dependency and settings conventions](#dependency-and-settings-conventions)
 - [Notes for those of us who don't know Django](#notes-for-those-of-us-who-dont-know-django)
 
@@ -24,19 +24,13 @@ While we aspire to eventually to update for consistency, in the meantime, these 
 
 ## Installation
 
-The repository is [Brown-University-Library/sr_input_form](https://github.com/Brown-University-Library/sr_input_form). Examples use the default clone directory `sr_input_form/`. For an existing checkout, enter its actual directory; changing the remote URL does not require renaming that directory. To update an existing checkout's remote, run this from its Git root:
-
-```bash
-git remote set-url origin git@github.com:Brown-University-Library/sr_input_form.git
-```
-
-Docker, host development, and server deployments all use `pyproject.toml`, `uv.lock`, and uv. Application settings are loaded by `python-dotenv` from the `.env` one directory above the code.
+Choose one approach below. Docker sets up the application and its development databases; local uv development requires you to supply the databases yourself. The examples use `sr_input_form_stuff/sr_input_form`; an existing checkout can keep its current directory names.
 
 ### Approach 1: Docker development
 
-Install and start Docker with Linux-container support: Docker Desktop on Apple Silicon Macs or Windows (normally WSL 2), or Docker Engine with the Compose plugin on Linux. No host Python or uv installation is required. The web image supports Linux ARM64 and AMD64; Docker selects the architecture automatically. Intel Macs are not supported. On Windows, use a WSL terminal for these commands and preferably keep the checkout in the WSL filesystem. Allow Docker access to the enclosing directory when prompted. The startup commands run in Bash inside the Linux container.
+Install and open Docker Desktop on an Apple Silicon Mac or Windows, or use Docker Engine with Compose on Linux. On Windows, run these commands in a WSL terminal with Docker integration enabled. You also need Git and GitHub SSH access to the repositories, including the private starter-data repository. You do not need to install Python or uv on your computer for this approach.
 
-The examples use `sr_input_form_stuff` for the enclosing directory; existing installations can keep their current directory name. Create that enclosing directory, then clone the three repositories as siblings. Access to the private starter-data repository is required:
+For a new installation, run these commands in order. If you already have all three repositories together, enter your existing `sr_input_form` directory instead of cloning them again.
 
 ```bash
 mkdir ./sr_input_form_stuff/
@@ -47,129 +41,147 @@ git clone git@github.com:Brown-University-Library/sr_input_form.git
 cd ./sr_input_form/
 ```
 
-Start Docker with the supplied development defaults:
+In that same terminal, start the app:
 
 ```bash
 docker compose up --build
 ```
 
-Compose creates `DBs/`, `logs/`, `cache_dir/`, and `docker/` in the enclosing directory as needed. On first startup, the web container copies `sample_dot_env.txt` to `../docker/.env`, keeping the sample settings. You shouldn't have to customize the `../docker/.env` settings, but if you want to, edit them, then run `docker compose restart web`. 
+**Leave this terminal running.** The command displays logs and does not return a prompt while the app is running. The first build and database setup can take several minutes. Once you see `Starting development server at http://0.0.0.0:8000/`, open <http://127.0.0.1:8000/info/> in your browser. Browse data continues updating in the background, so the logs do not need to become quiet.
 
-Once you see the terminal activity stop, open <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> or <http://127.0.0.1:8000/login/>. Adminer is at <http://127.0.0.1:8080/>: server `db`, database `stolenrelations`, user/password `user`/`user` for the example setup.
+Docker creates the working directories and copies `sample_dot_env.txt` to `../docker/.env` if that file is missing. Existing settings and databases are preserved. The sample is ready for the supplied Docker development databases.
 
-Compose mounts only the application checkout, DBs, logs, cache directory, read-only starter data, and the writable Docker settings directory. Inside the image, `/sr_project_stuff/.env` points to `/sr_project_stuff/docker/.env`; Python parses the file created in that mounted directory. The host/server `../.env` stays separate. MySQL's entrypoint still receives its own `MYSQL_*` values from Compose.
+Press **Control-C in this terminal when you want to stop the app**. This stops the web app and its supporting services. To run checks or other commands while the app is running, open a second terminal as described below.
 
 ### Approach 2: Local development with uv
 
-(This installs only the code. Manual sqlite-dbs will need to be installed and referenced in the `.env`.)
+Use this approach if you want to run Python directly on your computer. You need Git, GitHub SSH access, and [uv](https://docs.astral.sh/uv/getting-started/installation/). Obtain the two development SQLite databases from the team; cloning the code alone does not provide them.
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it is not already available. Then enter the Git repository from the enclosing outer directory:
+For a new installation, run these commands in order. For an existing checkout, enter its application directory and skip the creation and clone commands.
 
 ```bash
-cd /path/to/sr_input_form_stuff/
+mkdir ./sr_input_form_stuff/
+cd ./sr_input_form_stuff/
 git clone git@github.com:Brown-University-Library/sr_input_form.git
 cd ./sr_input_form/
+mkdir -p ../DBs ../logs ../cache_dir
+cp -n sample_dot_env.txt ../.env
 ```
 
-Create the outer envar file once, then review each value before running the application:
-
-```bash
-cp sample_dot_env.txt ../.env
-```
-
-The sample_dot_env.txt file uses Docker's MySQL connection by default. For local SQLite use, edit the copied `../.env` and replace its `DISA_DJ__DATABASE_URL` assignment with:
+The `cp -n` command preserves an existing `.env`. Edit `../.env` before continuing: the shared sample uses Docker's MySQL connection by default. For a local SQLAlchemy SQLite database, replace its `DISA_DJ__DATABASE_URL` assignment with:
 
 ```dotenv
 DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
 ```
 
-Adjust the path to your existing SQLAlchemy database. Django's separate database path remains in `DISA_DJ__DATABASES_JSON`; provide both databases before starting the application.
+With these paths, place the main application database at `../DBs/DISA.sqlite` and Django's separate database at `../DBs/dj_disa.sqlite`. If your files are elsewhere, update both `DISA_DJ__DATABASE_URL` and `DISA_DJ__DATABASES_JSON` accordingly. Review the remaining settings for your installation.
 
-Install the locked local dependencies and verify Django:
+Then install the dependencies:
 
 ```bash
 uv sync --locked --group local
-uv run ./manage.py check
 ```
 
-Start the development server:
+After it finishes, start the app in the same terminal:
 
 ```bash
 uv run ./manage.py runserver
 ```
 
-### Intstallation note
+Leave this terminal running and open <http://127.0.0.1:8000/info/>. Press **Control-C** here to stop the server. If you want to run other commands while it runs, use a second terminal.
 
-Reminder: the real `.env` belongs in `sr_input_form_stuff/`, one directory above the Git repository. It's ok if it contains local sensitive values, because this outer directory is not committed to GitHub. 
+### Where settings live
 
+Docker uses `../docker/.env`; local uv development uses `../.env`. These are separate files outside the application Git repository. Editing the sample does not change either existing settings file.
 
-## Typical usage
+## Checks and tests (optional)
 
-### Docker
+These checks are useful after setup or code changes. Choose the commands for your installation method.
 
-_Assumes docker is installed and running._
+### Docker: use a second terminal
 
-From the application directory:
+**Keep `docker compose up` running in the first terminal. Open a second terminal or tab**, then enter the same application directory. Replace `/path/to/` below with the actual location of your enclosing directory.
+
+Run these commands one after another; each returns to the prompt when it finishes:
 
 ```bash
-docker compose up
+cd /path/to/sr_input_form_stuff/sr_input_form/
 docker compose exec web uv run --locked --offline --group local ./manage.py check
 docker compose exec web uv run --locked --offline --group local ./run_tests.py
 ```
 
-The test command prompts for the exact response `yes` and uses temporary fixture databases. Source edits retain Django autoreload. After dependency changes, update `uv.lock` and run `docker compose up --build`; this builds and uses the updated image. If startup reports a stale lock or an unavailable dependency, resolve/update the lock with uv and rebuild. Startup does not download Python or packages. A Docker-only developer can update the lock using the existing image with `docker compose run --rm --no-deps web uv lock`, then rebuild.
+The test command pauses for confirmation: type `yes` and press Enter. A successful test run ends with `OK`. The app keeps running in the first terminal.
 
-After editing `../docker/.env`, run `docker compose restart web` to reload settings. For an IDE attached to the running container, select `/opt/venv/bin/python`; the underlying managed interpreter remains at `/opt/python`. A host `.venv` is not used inside Docker.
+If you see **`service "web" is not running`**, return to the first terminal, run `docker compose up`, and wait for the server to start. Then retry the check in the second terminal. Cancelling `docker compose up` stops the service that `docker compose exec` needs.
 
-Browse generation runs asynchronously at startup. Check `docker compose logs web` and the newly written JSON completion metadata before assuming it succeeded. Once that startup job finishes, a foreground refresh can be run with:
+### Local uv development
 
-```bash
-docker compose exec web uv run --locked --offline --group local disa_app/lib/generate_browse_data.py
-```
-
-Use `docker compose stop` and `docker compose start` to preserve the current containers. MySQL still uses the companion image's anonymous data volume: `down` followed by `up` does not guarantee reconnection to the edited database. Back up both MySQL and Django SQLite before container replacement or rollback; this migration does not change that existing storage behavior. The companion backup script is available through `docker compose exec db /usr/local/bin/sr-db-backup.sh`.
-
-### uv
-
-From `sr_input_form/`, with the outer `.env` already reviewed:
+If `uv run ./manage.py runserver` is running, **open a second terminal** and enter the same application directory. Otherwise, use your current terminal there. Run:
 
 ```bash
-uv sync --locked --group local
-uv run ./manage.py runserver
-```
-
-
-## Running tests with uv
-
-Tests are for development environments only. The guarded runner uses `config/settings_test.py`, which replaces the normal Django database with a temporary in-memory SQLite database. It also creates a temporary on-disk SQLite database for SQLAlchemy-backed tests and populates it with synthetic fixture data.
-
-The runner redirects `DISA_DJ__DATABASE_URL` to that generated fixture before application modules load. Both test databases are removed after the run, including after test failure. The configured local or server SQLAlchemy database is not modified.
-
-Run the full Django test suite with:
-
-```bash
+uv run ./manage.py check
 uv run ./run_tests.py
 ```
 
-Or pass a Django test label to run a selected test module, class, or method:
+Type `yes` and press Enter when the test runner asks. You can also run a single test module:
 
 ```bash
 uv run ./run_tests.py disa_app.tests.test_renamer
 ```
 
-The runner displays credential-free descriptions of both database targets. For a manual run, tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p`.
+Both installation methods use the guarded `run_tests.py` runner, which creates temporary test databases. Use it instead of `manage.py test`. The existing `caches.W003` warning about a relative cache directory may appear during checks; it does not prevent the tests from running.
 
-An automated development deployment can run without a terminal when its caller explicitly exports `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`. The runner reads this authorization before loading the outer `.env`; keep it in the deployment caller rather than adding it to `.env`. The production-hostname refusal still applies when automated authorization is present.
+## Typical usage
 
-Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it does not build or select the isolated SQLAlchemy fixture. Reserve it for tests known not to access SQLAlchemy.
+All commands below run from your application directory, `sr_input_form/`.
+
+### Starting and stopping
+
+For Docker, start a later development session with:
+
+```bash
+docker compose up
+```
+
+For local uv development, use:
+
+```bash
+uv run ./manage.py runserver
+```
+
+Each command keeps its terminal occupied. Leave it running while you work in your editor and browser; press Control-C in that terminal when finished. Python code changes normally reload the server automatically. Refresh the browser to see page changes.
+
+For ordinary Docker sessions, Control-C followed later by `docker compose up` reuses the existing containers and databases. Avoid `docker compose down` as a routine stop command: it removes containers, and this setup does not guarantee that a newly created MySQL container will reuse the edited database.
+
+### After changing settings or dependencies
+
+After editing `../docker/.env`, leave Docker running in the first terminal and run this in a **second terminal**, from the application directory:
+
+```bash
+docker compose restart web
+```
+
+For local uv settings changes, stop the server with Control-C, then run `uv run ./manage.py runserver` again in that terminal.
+
+After pulling changes that update Python dependencies, stop the app with Control-C. For Docker, restart with `docker compose up --build`. For local uv development, run `uv sync --locked --group local`, wait for it to finish, then run `uv run ./manage.py runserver`.
+
+### Other useful pages
+
+With the app running, the login page is <http://127.0.0.1:8000/login/> and version information is at <http://127.0.0.1:8000/version/>.
+
+For Docker's database viewer, open <http://127.0.0.1:8080/>. Use server `db`, database `stolenrelations`, username `user`, and password `user` for the example setup.
 
 ## Dependency and settings conventions
 
-`pyproject.toml` and `uv.lock` are the only maintained Python dependency declarations. Keep the shared Python range `>=3.8,<3.9`; Docker installs exactly 3.8.20 through pinned uv on pinned Debian. Host and server interpreters may use any patch allowed by that range. Docker selects Python through `UV_PYTHON=3.8.20`; `uv sync --locked` checks TOML compatibility and lock freshness and synchronizes the environment during build/startup. This does not make the shared TOML range an exact patch pin.
+`pyproject.toml` and `uv.lock` define the Python dependencies. Docker supplies Python 3.8.20; local Python must satisfy the declared Python 3.8 range. Update the lockfile along with dependency changes before rebuilding. Application settings are loaded from the selected `.env`, and file values override inherited application settings.
 
-Docker installs runtime dependencies plus the `local` group. Host development uses `uv sync --locked --group local`; development servers use `--group staging`; production uses `--group prod`, which adds `mysqlclient==2.1.1` and needs the server's MySQL build prerequisites. Never install all groups just to make development work. Existing package pins remain unchanged.
+For the detailed Docker design, platform checks, and known limitations, see the [implementation report](REPORT__tomlized_docker_architecture.md).
 
-Every workflow requires the `.env` one directory above its code. File values override conflicting inherited application variables (`override=True`), and missing required settings fail explicitly. The Docker source file is `../docker/.env`; the host/server source file is `../.env`. Keep real settings files outside Git. Quoted JSON is supported, empty assignments produce empty strings, and `${NAME}` is expanded by python-dotenv; account for interpolation when choosing values. Compose mounts the Docker settings directory and does not also parse its `.env` as a service `env_file`.
+If an existing checkout still uses the former GitHub repository address, update it from that checkout's application directory:
+
+```bash
+git remote set-url origin git@github.com:Brown-University-Library/sr_input_form.git
+```
 
 ## Notes for those of us who don't know Django
 
@@ -181,23 +193,22 @@ Django settings for sr_input_form. Mostly "where are things" and security keys, 
 
 Generated by 'django-admin startproject' using Django 1.11.
 
-[More information on this file](https://docs.djangoproject.com/en/1.11/topics/settings/)
+[More information on this file](https://docs.djangoproject.com/en/3.2/topics/settings/)
 
-[Full list of settings and their values](https://docs.djangoproject.com/en/1.11/ref/settings/)
+[Full list of settings and their values](https://docs.djangoproject.com/en/3.2/ref/settings/)
 
 ### [sr_input_form/config/urls.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/config/urls.py)
 
 Maps URL patterns to views, e.g.:
 
 ```
-url( r'^editor/documents/(?P<cite_id>.*)/$', views.edit_citation, name='edit_citation_url' )
+url( r'^source/(?P<src_id>.*)/$', views.source, name='source_url' )
 ```
 
 which maps to the function definition in [sr_input_form/disa_app/views.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/disa_app/views.py):
 
 ```
-@shib_login
-def edit_citation( request, cite_id=None ):
+def source( request, src_id ):
 ```
 
 ### [sr_input_form/disa_app/admin.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/disa_app/admin.py)
@@ -227,11 +238,11 @@ Model definition for SQL Alchemy
 
 ### [sr_input_form/disa_app/models.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/models.py)
 
-Not sure (ask Birkin)
+Django models for users' application profiles and deletion markers.
 
 ### [sr_input_form/disa_app/settings_app.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/settings_app.py)
 
-Some random settings—authentication, DB location, etc. Not sure how this relates to `sr_input_form/config/settings.py`
+Application-specific settings, including authentication and the SQLAlchemy database URL. Django loads the `.env` in `config/settings.py`; this module reads application values from that environment.
 
 ### [sr_input_form/disa_app/views.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/views.py)
 
