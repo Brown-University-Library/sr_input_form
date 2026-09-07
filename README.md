@@ -4,8 +4,8 @@
 
 - [Glossary](#glossary)
 - [Installation](#installation)
-- [Checks and tests (optional)](#checks-and-tests-optional)
 - [Typical usage](#typical-usage)
+- [Checks and tests (optional)](#checks-and-tests-optional)
 - [Dependency and settings conventions](#dependency-and-settings-conventions)
 - [Notes for those of us who don't know Django](#notes-for-those-of-us-who-dont-know-django)
 
@@ -94,43 +94,6 @@ Leave this terminal running and open <http://127.0.0.1:8000/info/>. Press **Cont
 
 Docker uses `../docker/.env`; local uv development uses `../.env`. These are separate files outside the application Git repository. Editing the sample does not change either existing settings file.
 
-## Checks and tests (optional)
-
-These checks are useful after setup or code changes. Choose the commands for your installation method.
-
-### Docker: use a second terminal
-
-**Keep `docker compose up` running in the first terminal. Open a second terminal or tab**, then enter the same application directory. Replace `/path/to/` below with the actual location of your enclosing directory.
-
-Run these commands one after another; each returns to the prompt when it finishes:
-
-```bash
-cd /path/to/sr_input_form_stuff/sr_input_form/
-docker compose exec web uv run --locked --offline --group local ./manage.py check
-docker compose exec web uv run --locked --offline --group local ./run_tests.py
-```
-
-The test command pauses for confirmation: type `yes` and press Enter. A successful test run ends with `OK`. The app keeps running in the first terminal.
-
-If you see **`service "web" is not running`**, return to the first terminal, run `docker compose up`, and wait for the server to start. Then retry the check in the second terminal. Cancelling `docker compose up` stops the service that `docker compose exec` needs.
-
-### Local uv development
-
-If `uv run ./manage.py runserver` is running, **open a second terminal** and enter the same application directory. Otherwise, use your current terminal there. Run:
-
-```bash
-uv run ./manage.py check
-uv run ./run_tests.py
-```
-
-Type `yes` and press Enter when the test runner asks. You can also run a single test module:
-
-```bash
-uv run ./run_tests.py disa_app.tests.test_renamer
-```
-
-Both installation methods use the guarded `run_tests.py` runner, which creates temporary test databases. Use it instead of `manage.py test`. The existing `caches.W003` warning about a relative cache directory may appear during checks; it does not prevent the tests from running.
-
 ## Typical usage
 
 All commands below run from your application directory, `sr_input_form/`.
@@ -170,6 +133,43 @@ After pulling changes that update Python dependencies, stop the app with Control
 With the app running, the login page is <http://127.0.0.1:8000/login/> and version information is at <http://127.0.0.1:8000/version/>.
 
 For Docker's database viewer, open <http://127.0.0.1:8080/>. Use server `db`, database `stolenrelations`, username `user`, and password `user` for the example setup.
+
+## Checks and tests (optional)
+
+These checks are useful after setup or code changes. Choose the commands for your installation method.
+
+### Docker: use a second terminal
+
+**Keep `docker compose up` running in the first terminal. Open a second terminal or tab**, then enter the same application directory. Replace `/path/to/` below with the actual location of your enclosing directory.
+
+Run these commands one after another; each returns to the prompt when it finishes:
+
+```bash
+cd /path/to/sr_input_form_stuff/sr_input_form/
+docker compose exec web uv run --locked --offline --group local ./manage.py check
+docker compose exec web uv run --locked --offline --group local ./run_tests.py
+```
+
+The test command pauses for confirmation: type `yes` and press Enter. A successful test run ends with `OK`. The app keeps running in the first terminal.
+
+If you see **`service "web" is not running`**, return to the first terminal, run `docker compose up`, and wait for the server to start. Then retry the check in the second terminal. Cancelling `docker compose up` stops the service that `docker compose exec` needs.
+
+### Local uv development
+
+If `uv run ./manage.py runserver` is running, **open a second terminal** and enter the same application directory. Otherwise, use your current terminal there. Run:
+
+```bash
+uv run ./manage.py check
+uv run ./run_tests.py
+```
+
+Type `yes` and press Enter when the test runner asks. You can also run a single test module:
+
+```bash
+uv run ./run_tests.py disa_app.tests.test_renamer
+```
+
+Both installation methods use the guarded `run_tests.py` runner, which creates temporary test databases. Use it instead of `manage.py test`. The existing `caches.W003` warning about a relative cache directory may appear during checks; it does not prevent the tests from running.
 
 ## Dependency and settings conventions
 
