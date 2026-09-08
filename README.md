@@ -4,10 +4,27 @@
 
 - [Glossary](#glossary)
 - [Installation](#installation)
+  - [Approach 1: Docker development](#approach-1-docker-development)
+  - [Approach 2: Local development with uv](#approach-2-local-development-with-uv)
+  - [Where settings live](#where-settings-live)
 - [Typical usage](#typical-usage)
-- [Running tests with uv](#running-tests-with-uv)
-- [Phase 1 dependency note](#phase-1-dependency-note)
+  - [Starting and stopping](#starting-and-stopping)
+  - [After changing settings or dependencies](#after-changing-settings-or-dependencies)
+  - [Other useful pages](#other-useful-pages)
+- [Checks and tests (optional)](#checks-and-tests-optional)
+  - [Docker: use a second terminal](#docker-use-a-second-terminal)
+  - [Local uv development](#local-uv-development)
+- [Dependency and settings conventions](#dependency-and-settings-conventions)
 - [Notes for those of us who don't know Django](#notes-for-those-of-us-who-dont-know-django)
+  - [sr_input_form/config/settings.py](#sr_input_formconfigsettingspy)
+  - [sr_input_form/config/urls.py](#sr_input_formconfigurlspy)
+  - [sr_input_form/disa_app/admin.py](#sr_input_formdisa_appadminpy)
+  - [sr_input_form/disa_app/disa_app_templates](#sr_input_formdisa_appdisa_app_templates)
+  - [sr_input_form/disa_app/lib](#sr_input_formdisa_applib)
+  - [sr_input_form/disa_app/models_sqlalchemy.py](#sr_input_formdisa_appmodels_sqlalchemypy)
+  - [sr_input_form/disa_app/models.py](#sr_input_formdisa_appmodelspy)
+  - [sr_input_form/disa_app/settings_app.py](#sr_input_formdisa_appsettings_apppy)
+  - [sr_input_form/disa_app/views.py](#sr_input_formdisa_appviewspy)
 
 ## Glossary
 
@@ -24,108 +41,168 @@ While we aspire to eventually to update for consistency, in the meantime, these 
 
 ## Installation
 
-There are two supported approaches for running the Python application during Phase 1. Developers using Docker can continue with the existing Docker setup. Developers running Python directly on the host can use uv and the outer `.env` file.
+Choose one approach below. Docker sets up the application and its development databases; local uv development requires you to supply the databases yourself. The examples use `sr_input_form_stuff/sr_input_form`; an existing checkout can keep its current directory names.
 
-### Approach 1: Docker-based development
+### Approach 1: Docker development
 
-(Assumes [Docker](https://www.docker.com) is installed and running.)
+Install and open Docker Desktop on an Apple Silicon Mac or Windows, or use Docker Engine with Compose on Linux. On Windows, run these commands in a WSL terminal with Docker integration enabled. You also need Git and GitHub SSH access to the repositories, including the private starter-data repository. You do not need to install Python or uv on your computer for this approach.
 
-- Create a local "stuff" directory (name it anything) -- and from your terminal, cd into it (one-time step)
-
-
-From the terminal, run:
-
-- `git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git`<br />_(a one-time step; downloads the login/password security information for the input form)_
-- `git clone --depth 1 git@github.com:Brown-University-Library/sr_dkr_sql-database.git`<br/>_(a one-time step; downloads the SR mySQL database)_
-- `git clone git@github.com:Brown-University-Library/sr_input_form.git`<br/>_(a one-time step; downloads the SR input form codebase)_
-- `cd sr_input_form`<br />_Sets the current directory to sr\_input\_form_
-- `docker-compose up`<br />_Creates the container (which starts the webapp)_
-
-The webapp should be running; from a browser, go to `http://127.0.0.1:8000/version/` or `http://127.0.0.1:8000/login/`. 
-
-If you want to tinker with the database via the database manager _adminer_, go to `http://127.0.0.1:8080`.
-
-### Approach 2: Host-based development with uv
-
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it is not already available. Then enter the Git repository from the enclosing outer directory:
+For a new installation, run these commands in order. If you already have all three repositories together, enter your existing `sr_input_form` directory instead of cloning them again.
 
 ```bash
-cd /path/to/sr_input_form_stuff/
+mkdir ./sr_input_form_stuff/
+cd ./sr_input_form_stuff/
+git clone git@github.com:Brown-University-Library/stolen_relations_start_data.git
+git clone --depth 1 git@github.com:Brown-University-Library/sr_dkr_sql-database.git
 git clone git@github.com:Brown-University-Library/sr_input_form.git
 cd ./sr_input_form/
 ```
 
-Create the outer environment file once, then review every value and path before running the application:
+In that same terminal, start the app:
 
 ```bash
-cp sample_dot_env.txt ../.env
+docker compose up --build
 ```
 
-The real `.env` belongs in `sr_input_form_stuff/`, one directory above this Git repository. It may contain local sensitive values because the outer directory is not tracked by this repository. The Django and SQLAlchemy settings are independent; each must point to the intended host-accessible development database.
+**Leave this terminal running.** The command displays logs and does not return a prompt while the app is running. The first build and database setup can take several minutes.
 
-Install the locked local dependencies and verify Django:
+The webapp then starts while a background job generates browse data, producing many location-related messages. You can use the webapp while those messages continue. Try opening <http://127.0.0.1:8000/info/> or <http://127.0.0.1:8000/version/> in your browser. A benefit of the `version` url is that you can confirm you're on the branch and commit you expect. If the url you try isn’t available yet, wait briefly and refresh. You can also wait for the initial flood of messages to subside, although the terminal may continue logging your browser activity. 
+
+Docker creates the working directories and copies `sample_dot_env.txt` to `../docker/.env` if that file is missing.
+
+Press **Control-C in this terminal when you want to stop the app**. This stops the web app and its supporting services. To run checks or other commands while the app is running, open a second terminal as described below.
+
+Note: This docker-installation is for **local development only**. The minimalist base debian image used is known to have critical and high vulnerabilities, and Django's documentation clearly indicates that its built-in webserver is for local development only.
+
+### Approach 2: Local development with uv
+
+Use this approach if you want to run Python directly on your computer. You need Git, GitHub SSH access, and [uv](https://docs.astral.sh/uv/getting-started/installation/). Obtain the two development SQLite databases from the team; cloning the code alone does not provide them.
+
+For a new installation, run these commands in order. For an existing checkout, enter its application directory and skip the creation and clone commands.
+
+```bash
+mkdir ./sr_input_form_stuff/
+cd ./sr_input_form_stuff/
+git clone git@github.com:Brown-University-Library/sr_input_form.git
+cd ./sr_input_form/
+mkdir -p ../DBs ../logs ../cache_dir
+cp -n sample_dot_env.txt ../.env
+```
+
+The `cp -n` command preserves an existing `.env`. Edit `../.env` before continuing: the shared sample uses Docker's MySQL connection by default. For a local SQLAlchemy SQLite database, replace its `DISA_DJ__DATABASE_URL` assignment with:
+
+```dotenv
+DISA_DJ__DATABASE_URL="sqlite:///../DBs/DISA.sqlite"
+```
+
+With these paths, place the main application database at `../DBs/DISA.sqlite` and Django's separate database at `../DBs/dj_disa.sqlite`. If your files are elsewhere, update both `DISA_DJ__DATABASE_URL` and `DISA_DJ__DATABASES_JSON` accordingly. Review the remaining settings for your installation.
+
+Then install the dependencies:
 
 ```bash
 uv sync --locked --group local
-uv run ./manage.py check
 ```
 
-Start the development server:
+After it finishes, start the app in the same terminal:
 
 ```bash
 uv run ./manage.py runserver
 ```
 
-For this approach, do not activate a virtual environment, set `DISA_DJ__ENV_SETTINGS_PATH`, or source `config/settings_localdev_env.sh`. Django loads `../.env` through `python-dotenv`.
+Leave this terminal running and open <http://127.0.0.1:8000/info/>. Press **Control-C** here to stop the server. If you want to run other commands while it runs, use a second terminal.
+
+### Where settings live
+
+Docker uses `../docker/.env`; local uv development uses `../.env`. These are separate files outside the application Git repository. Editing the sample does not change either existing settings file.
 
 ## Typical usage
 
-### Docker
+All commands below run from your application directory, `sr_input_form/`.
 
-- `cd <SOME_PATH>/sr_input_form`<br />_Sets the current directory to sr\_input\_form_
-- `docker-compose up`<br />_Creates the container (which starts the webapp)_
+### Starting and stopping
 
-Note: if a code-update installs a new python-package, either:
-
-- delete the `sr\_input\_form-web` image which should force it to be rebuilt (best option), **or...**    
-- run `docker-compose up --build` to force the container to be rebuilt. (I don't think this actually creates a new image, so subsequent runs of `docker-compose up` will still use the old image.)
-
-### uv
-
-From `sr_input_form/`, with the outer `.env` already reviewed:
+For Docker, start a later development session with:
 
 ```bash
-uv sync --locked --group local
+docker compose up
+```
+
+For local uv development, use:
+
+```bash
 uv run ./manage.py runserver
 ```
 
-## Running tests with uv
+Each command keeps its terminal occupied. Leave it running while you work in your editor and browser; press Control-C in that terminal when finished. Python code changes normally reload the server automatically. Refresh the browser to see page changes.
 
-Tests are for development environments only. The guarded runner uses `config/settings_test.py`, which replaces the normal Django database with a temporary in-memory SQLite database. It also creates a temporary on-disk SQLite database for SQLAlchemy-backed tests and populates it with synthetic fixture data.
+For ordinary Docker sessions, Control-C followed later by `docker compose up` reuses the existing containers and databases. Avoid `docker compose down` as a routine stop command: it removes containers, and this setup does not guarantee that a newly created MySQL container will reuse the edited database.
 
-The runner redirects `DISA_DJ__DATABASE_URL` to that generated fixture before application modules load. Both test databases are removed after the run, including after test failure. The configured local or server SQLAlchemy database is not modified.
+### After changing settings or dependencies
 
-Run the full Django test suite with:
+After editing `../docker/.env`, leave Docker running in the first terminal and run this in a **second terminal**, from the application directory:
 
 ```bash
+docker compose restart web
+```
+
+For local uv settings changes, stop the server with Control-C, then run `uv run ./manage.py runserver` again in that terminal.
+
+After pulling changes that update Python dependencies, stop the app with Control-C. For Docker, restart with `docker compose up --build`. For local uv development, run `uv sync --locked --group local`, wait for it to finish, then run `uv run ./manage.py runserver`.
+
+### Other useful pages
+
+With the app running, the login page is <http://127.0.0.1:8000/login/> and version information is at <http://127.0.0.1:8000/version/>.
+
+For Docker's database viewer, open <http://127.0.0.1:8080/>. Use server `db`, database `stolenrelations`, username `user`, and password `user` for the example setup.
+
+## Checks and tests (optional)
+
+These checks are useful after setup or code changes. Choose the commands for your installation method.
+
+### Docker: use a second terminal
+
+**Keep `docker compose up` running in the first terminal. Open a second terminal or tab**, then enter the same application directory. Replace `/path/to/` below with the actual location of your enclosing directory.
+
+Run these commands one after another; each returns to the prompt when it finishes:
+
+```bash
+cd /path/to/sr_input_form_stuff/sr_input_form/
+docker compose exec web uv run --locked --offline --group local ./manage.py check
+docker compose exec web uv run --locked --offline --group local ./run_tests.py
+```
+
+The test command pauses for confirmation: type `yes` and press Enter. A successful test run ends with `OK`. The app keeps running in the first terminal.
+
+If you see **`service "web" is not running`**, return to the first terminal, run `docker compose up`, and wait for the server to start. Then retry the check in the second terminal. Cancelling `docker compose up` stops the service that `docker compose exec` needs.
+
+### Local uv development
+
+If `uv run ./manage.py runserver` is running, **open a second terminal** and enter the same application directory. Otherwise, use your current terminal there. Run:
+
+```bash
+uv run ./manage.py check
 uv run ./run_tests.py
 ```
 
-Or pass a Django test label to run a selected test module, class, or method:
+Type `yes` and press Enter when the test runner asks. You can also run a single test module:
 
 ```bash
 uv run ./run_tests.py disa_app.tests.test_renamer
 ```
 
-The runner displays credential-free descriptions of both database targets. For a manual run, tests start only after the developer types the exact lowercase response `yes`. The runner refuses to start on a production hostname beginning with `p`.
+Both installation methods use the guarded `run_tests.py` runner, which creates temporary test databases. Use it instead of `manage.py test`. The existing `caches.W003` warning about a relative cache directory may appear during checks; it does not prevent the tests from running.
 
-An automated development deployment can run without a terminal when its caller explicitly exports `DISA_DJ__AUTOMATED_TEST_AUTHORIZATION=run-development-tests`. The runner reads this authorization before loading the outer `.env`; keep it in the deployment caller rather than adding it to `.env`. The production-hostname refusal still applies when automated authorization is present.
+## Dependency and settings conventions
 
-Do not use a plain `uv run ./manage.py test` for this application. That command uses the normal MySQL settings and asks MySQL to create a test database. The direct Django equivalent is `uv run ./manage.py test --settings=config.settings_test`, but it does not build or select the isolated SQLAlchemy fixture. Reserve it for tests known not to access SQLAlchemy.
+`pyproject.toml` and `uv.lock` define the Python dependencies. Docker supplies Python 3.8.20; local Python must satisfy the declared Python 3.8 range. Update the lockfile along with dependency changes before rebuilding. Application settings are loaded from the selected `.env`, and file values override inherited application settings.
 
-## Phase 1 dependency note
+For the detailed Docker design, platform checks, and known limitations, see the [implementation report](REPORT__tomlized_docker_architecture.md).
 
-Host-based development and the new server deployment path use `pyproject.toml`, `uv.lock`, and uv. During Phase 1, Docker continues to use the existing pip requirements files and does not consume `pyproject.toml` or `uv.lock`. Moving Docker to uv is deferred to Phase 2.
+If an existing checkout still uses the former GitHub repository address, update it from that checkout's application directory:
+
+```bash
+git remote set-url origin git@github.com:Brown-University-Library/sr_input_form.git
+```
 
 ## Notes for those of us who don't know Django
 
@@ -135,25 +212,24 @@ Some critical files:
 
 Django settings for sr_input_form. Mostly "where are things" and security keys, etc.
 
-Generated by 'django-admin startproject' using Django 1.11.
+Generated by Django's 'django-admin startproject' command, with values then updated.
 
-[More information on this file](https://docs.djangoproject.com/en/1.11/topics/settings/)
+[More information on this file](https://docs.djangoproject.com/en/3.2/topics/settings/)
 
-[Full list of settings and their values](https://docs.djangoproject.com/en/1.11/ref/settings/)
+[Full list of settings and their values](https://docs.djangoproject.com/en/3.2/ref/settings/)
 
 ### [sr_input_form/config/urls.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/config/urls.py)
 
 Maps URL patterns to views, e.g.:
 
 ```
-url( r'^editor/documents/(?P<cite_id>.*)/$', views.edit_citation, name='edit_citation_url' )
+url( r'^source/(?P<src_id>.*)/$', views.source, name='source_url' )
 ```
 
 which maps to the function definition in [sr_input_form/disa_app/views.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/disa_app/views.py):
 
 ```
-@shib_login
-def edit_citation( request, cite_id=None ):
+def source( request, src_id ):
 ```
 
 ### [sr_input_form/disa_app/admin.py](https://github.com/Brown-University-Library/sr_input_form/blob/main/disa_app/admin.py)
@@ -183,11 +259,11 @@ Model definition for SQL Alchemy
 
 ### [sr_input_form/disa_app/models.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/models.py)
 
-Not sure (ask Birkin)
+Django models for users' application profiles and deletion markers.
 
 ### [sr_input_form/disa_app/settings_app.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/settings_app.py)
 
-Some random settings—authentication, DB location, etc. Not sure how this relates to `sr_input_form/config/settings.py`
+Application-specific settings, including authentication and the SQLAlchemy database URL. Django loads the `.env` in `config/settings.py`; this module reads application values from that environment.
 
 ### [sr_input_form/disa_app/views.py](https://github.com/Brown-University-Library/sr_input_form/tree/main/disa_app/views.py)
 

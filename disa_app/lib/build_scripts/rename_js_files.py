@@ -1,7 +1,7 @@
 """
 Usage:
 - $ cd /to/project_root (where manage.py is)
-- $ python ./disa_app.lib.build_scripts.rename_js_files
+- $ uv run ./disa_app/lib/build_scripts/rename_js_files.py
 """
 
 import os
