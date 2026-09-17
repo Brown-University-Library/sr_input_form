@@ -3,8 +3,8 @@ Creates the json file used by the browse-table javascript library.
 
 Usage...
 - called by cron script in practice.
-- can be called manually by cd-ing to the project directory (with virtual-environment activated) and running:
-  $ python3 ./disa_app/lib/generate_browse_data.py
+- can be called manually from the repository directory:
+  $ uv run ./disa_app/lib/generate_browse_data.py
 """
 
 import collections, datetime, json, logging, os, pathlib, pprint, sys

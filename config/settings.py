@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 """
 
 import json, logging, os
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +21,45 @@ log = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname( os.path.dirname(os.path.abspath(__file__)) )
 # log.debug( f'BASE_DIR, ``{BASE_DIR}``' )
 # BASE_DIR is the path to the project (no end-slash)
+
+## load the outer dotenv file for host, server, and Docker use
+DOTENV_PATH = Path(BASE_DIR).parent / '.env'
+if not DOTENV_PATH.is_file():
+    raise RuntimeError(f'Required dotenv file not found: {DOTENV_PATH}')
+load_dotenv(dotenv_path=DOTENV_PATH, override=True)
+
+REQUIRED_ENVIRONMENT_KEYS = (
+    'DISA_DJ__SECRET_KEY',
+    'DISA_DJ__DEBUG_JSON',
+    'DISA_DJ__ADMINS_JSON',
+    'DISA_DJ__ALLOWED_HOSTS',
+    'DISA_DJ__DATABASES_JSON',
+    'DISA_DJ__STATIC_URL',
+    'DISA_DJ__STATIC_ROOT',
+    'DISA_DJ__SERVER_EMAIL',
+    'DISA_DJ__EMAIL_HOST',
+    'DISA_DJ__EMAIL_PORT',
+    'DISA_DJ__LOG_PATH',
+    'DISA_DJ__LOG_LEVEL',
+    'DISA_DJ__CACHES_JSON',
+    'DISA_DJ__README_URL',
+    'DISA_DJ__MAINTENANCE_MODE_JSON',
+    'DISA_DJ__DENORMALIZED_JSON_URL',
+    'DISA_DJ__DENORMALIZED_JSON_PATH',
+    'DISA_DJ__BROWSE_JSON_URL',
+    'DISA_DJ__BROWSE_JSON_PATH',
+    'DISA_DJ__DATABASE_URL',
+    'DISA_DJ__SUPER_USERS_JSON',
+    'DISA_DJ__STAFF_USERS_JSON',
+    'DISA_DJ__STAFF_GROUP',
+    'DISA_DJ__TEST_META_DCT_JSON',
+    'DISA_DJ__LOGIN_PROBLEM_EMAIL',
+    'DISA_DJ__BROWSE_USERPASS_JSON',
+)
+missing_environment_keys = [key for key in REQUIRED_ENVIRONMENT_KEYS if key not in os.environ]
+if missing_environment_keys:
+    missing_key_names = ', '.join(missing_environment_keys)
+    raise RuntimeError(f'Required environment settings are missing: {missing_key_names}')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/

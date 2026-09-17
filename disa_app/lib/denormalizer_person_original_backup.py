@@ -6,7 +6,7 @@ Creates the json file used by the browse-table javascript library.
 Usage...
 - called by cron script in practice.
 - can be called manually by cd-ing to the project directory and running:
-  $ python3 ./disa_app/lib/denormalizer_person_original.py
+  $ uv run ./disa_app/lib/denormalizer_person_original.py
 """
 
 import collections, datetime, json, logging, os, pathlib, pprint, sys

@@ -10,3 +10,10 @@ denormalized_formatted.json
 denormalized.json
 env
 migrations
+.venv
+
+.env
+.env.*
+.env_*
+.ruff_cache/
+.pytest_cache/

@@ -60,7 +60,7 @@ def prep_referents_data() -> dict:
         'info': [
             '- a `referent` is a person associated with an item-record',
             '  ...as opposed to a `person`-record, which I suspect was designed to allow multiple-referents to be identified as the same-person',
-            '- see the glossary at <https://github.com/Brown-University-Library/disa_dj_project/blob/master/README.md> for terms...',
+            '- see the glossary at <https://github.com/Brown-University-Library/sr_input_form/blob/main/README.md> for terms...',
             '  ...that mean the same thing but can cause confusion when one is used in the entry-form and another is used in the database',
             '- this list is sorted by referent.id',
             '- the `display_name` is constructed by the related-fields `primary_name.first` + `primary_name.last`',
