@@ -8,7 +8,7 @@ dependencies = [
     "asgiref==3.8.1",
     "certifi==2024.7.4",
     "charset-normalizer==2.0.12",
-    "django==3.2.25",
+    "django>=4.2,<5.0",
     "idna==3.7",
     "pymysql==1.1.1",
     "python-dotenv==1.0.1",
