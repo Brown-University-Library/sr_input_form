@@ -124,6 +124,7 @@ async function saveReferentDataToServer() {
       occupation_text: this.currentReferent.occupation_text || '',
       origins: convertFromTagify(this.currentReferent.origins),
       races: convertFromTagify(this.currentReferent.races),
+      race_text: this.currentReferent.race_text || '',
       roles: [], // @todo ?? this.currentReferent.roles,
       sex: this.currentReferent.sex,
       statuses: convertFromTagify(this.currentReferent.status),

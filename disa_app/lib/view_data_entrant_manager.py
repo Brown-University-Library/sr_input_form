@@ -63,6 +63,7 @@ class Getter():
         data['ent']['races'] = [
             { 'label': r.name, 'value': r.name,
                 'id': r.name } for r in rfrnt.races ]
+        data['ent']['race_text'] = rfrnt.race_text
         data['ent']['tribes'] = [
             { 'label': t.name, 'value': t.name,
                 'id': t.name } for t in rfrnt.tribes ]
@@ -202,6 +203,7 @@ class Details_Updater():
         rfrnt.primary_name = rfrnt.names[0]
         rfrnt.races = [ self.common.get_or_create_referent_attribute( ra, models_alch.Race, self.session )
             for ra in data['races'] ]
+        rfrnt.race_text = data['race_text']
         rfrnt.tribes = [ self.common.get_or_create_referent_attribute( tr, models_alch.Tribe, self.session )
             for tr in data['tribes'] ]
         rfrnt.origins = [ self.common.get_or_create_referent_attribute( ori, models_alch.Location, self.session )

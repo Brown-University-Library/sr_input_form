@@ -19,21 +19,13 @@ const componentDefinition = {
       return longId.toString().slice(0,5);
     },
     optionsMenu: function(x, e) {
-      console.log('options!', x, e);
+      //console.log('options!', x, e);
     }
   },
   mounted: function () {
     const tooltip =  new bootstrap.Tooltip(this.$el);
     tooltip.html = true;
     tooltip.title = "YES and <em>yes</em>!";
-    console.log('MOUNTED', tooltip);
-/*
-    var tooltipTriggerList = [].slice.call(
-      document.querySelectorAll('[data-bs-toggle="tooltip"]')
-    );
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    }); */
   }
 };
 

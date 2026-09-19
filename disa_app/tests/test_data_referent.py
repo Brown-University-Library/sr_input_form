@@ -89,7 +89,7 @@ class Client_Referent_API_Test( TestCase ):
         rfrnt_data_keys = sorted( resp_dct['ent'].keys() )
         # self.assertEqual( ['method', 'payload', 'timestamp', 'url'], req_keys )
         self.assertEqual(
-            ['age_category', 'age_number', 'age_text', 'enslavements', 'id', 'names', 'occupation_text', 'origins', 'races', 'sex', 'titles', 'tribes', 'uuid', 'vocations'],
+            ['age_category', 'age_number', 'age_text', 'enslavements', 'id', 'names', 'occupation_text', 'origins', 'races', 'race_text', sex', 'titles', 'tribes', 'uuid', 'vocations'],
             rfrnt_data_keys
             )
         ## cleanup
@@ -213,6 +213,7 @@ class Client_Referent_Details_API_Test( TestCase ):
         random_tribe_partA = secrets.choice( ['Bocotora', 'Eastern Pequot'] )
         random_tribe_partB = secrets.choice( ['Mohegan', 'Wampanoag'] )
         occupation_text = 'a job description ' + str(random.uniform(1, 20))
+        race_text = 'a racial transcription ' + str(random.uniform(1, 20))
 
         ## create a random float with one decimal point
         random_age_number = round(random.uniform(1, 20), 1)
@@ -232,6 +233,7 @@ class Client_Referent_Details_API_Test( TestCase ):
             # 'races': [ {'id': 'India', 'name': 'India'}, {'id': 'Mustee', 'name': 'Mustee'} ],
             'races': [ {'id': random_race_partA, 'name': random_race_partA}, {'id': random_race_partB, 'name': random_race_partB} ],
             # 'tribes': [ {'id': 'Bocotora', 'name': 'Bocotora'}, {'id': 'Eastern Pequot', 'name': 'Eastern Pequot'} ],
+            'race_text': race_text,
             'tribes': [ {'id': random_tribe_partA, 'name': random_tribe_partA}, {'id': random_tribe_partB, 'name': random_tribe_partB} ],
             'origins': [],
             'statuses': [],
@@ -274,6 +276,8 @@ class Client_Referent_Details_API_Test( TestCase ):
         self.assertEqual( random_uuid, get_resp_dct['ent']['age_category'] )
         ## test occupation
         self.assertEqual( occupation_text, get_resp_dct['ent']['occupation_text'] )
+        ## test race transcript
+        self.assertEqual( race_text, get_resp_dct['ent']['race_text'] )
         ## cleanup
         # self.delete_new_referent() -- eventually
 
