@@ -177,7 +177,6 @@ def manage_post( payload: bytes, request_user_id: int, db_session: AlchSession )
     """ Handles api call when 'Create' button is hit in `/editor/records/?doc_id=(123)`.
         Called by views.data_records() """
     log.debug( 'starting manage_post()' )
-    # session = make_session()
     session = db_session
     
     data: dict = json.loads( payload )
@@ -204,9 +203,10 @@ def manage_post( payload: bytes, request_user_id: int, db_session: AlchSession )
         rfrnc.transcription = data['transcription']
         rfrnc.researcher_notes = data['researcher_notes']
 
-        if 'image_url' in data.keys():
+        # Image ID is the ID of the image in the S3 bucket
+        if 'image_id' in data.keys():
             log.debug( f'rfrnc.__dict__, ``{pprint.pformat(rfrnc.__dict__)}``' )
-            rfrnc.image_url = data['image_url']
+            rfrnc.image_id = data['image_id']
             log.debug( f'rfrnc.__dict__ now, ``{pprint.pformat(rfrnc.__dict__)}``' )
 
         session.add( rfrnc )

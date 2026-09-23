@@ -411,10 +411,13 @@ async function saveItemDataToServer() {
         .filter(([k, v]) => v !== '')
         .reduce((acc, [k, v]) => { acc[k.substring(1)] = v; return acc }, {}),
       researcher_notes: this.currentItem.researcher_notes,
+      // TODO dynamically fill in this field from the form
+      image_id: 1234,
     };
 
     const httpMethod = isNewItem ? 'POST' : 'PUT';
 
+    // API call to upload data made here
     const url = `${API_URL_ROOT}records/${this.currentItemId}/`,
           fetchOptions = {
             method: httpMethod,
