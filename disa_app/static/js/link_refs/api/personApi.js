@@ -111,8 +111,16 @@ export async function savePersonChanges(payload = {}) {
     removeReferents = removeDashesFromUuids(payload.removeReferents ?? []),
     linkTargetReferentUuid = removeDashesFromUuid(payload.linkTargetReferent?.referent_uuid ?? null),
     researcherNote = payload.notes ?? "",
-    personUuid = payload.selectedPersonUuid ?? null,
     responses = [];
+
+  let personUuid = payload.selectedPersonUuid ?? null;
+
+  // Call API to create a new Person if no personUuid is provided
+  if (!personUuid) {
+    const newPerson = await createPerson(researcherNote);
+    personUuid = newPerson.person_uuid;
+    console.log("Created new person:", newPerson);
+  }
 
   // Call API to add Referents
   console.log("DRAMA 0", {
