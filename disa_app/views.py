@@ -550,25 +550,60 @@ def data_person_all( request ):
         content_type='application/json; charset=utf-8',
     )
 
+@shib_login
+def data_person_link_referent( request, person_uuid: str ):
+    """Links a referent to a person via the stored procedure."""
+    log.debug( '\n\nstarting data_person_link_referent()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid Method (must be POST)' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid JSON' )
+
+    """person_uuid = payload.get( 'person_uuid', '' )"""
+    referent_uuid = payload.get( 'referent_uuid', '' )
+
+    if not person_uuid or not referent_uuid:
+        log.debug( f'payload 400-3, ``{pprint.pformat(payload)}``' )
+        log.debug( f'person_uuid, ``{person_uuid}``; referent_uuid, ``{referent_uuid}``' )
+        return HttpResponseBadRequest( '400 / Bad Request – requires person_uuid and referent_uuid' )
+
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+    """link_referent_to_person(referent_uuid: str, person_uuid: str, by_value: str, note: str)"""
+    context: dict = view_data_person_manager.link_referent_to_person(
+        referent_uuid,
+        person_uuid,
+        by_value,
+        researcher_note,
+    )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
 
 @shib_login
 def data_person_link_referents( request ):
     """Links two referents to the same person via the stored procedure."""
     log.debug( '\n\nstarting data_person_link_referents()' )
     if request.method != 'POST':
-        return HttpResponseBadRequest( '400 / Bad Request' )
+        return HttpResponseBadRequest( '400 / Bad Request 1' )
     try:
         payload = json.loads( request.body.decode( 'utf-8' ) )
     except (TypeError, ValueError, UnicodeDecodeError):
-        return HttpResponseBadRequest( '400 / Bad Request' )
+        return HttpResponseBadRequest( '400 / Bad Request 2' )
 
     referent_uuids = payload.get( 'referent_uuids', [] )
 
     if not isinstance( referent_uuids, list ):
-        return HttpResponseBadRequest( '400 / Bad Request' )
+        return HttpResponseBadRequest( '400 / Bad Request 3' )
 
     if not referent_uuids or len(referent_uuids) < 2:
-        return HttpResponseBadRequest( '400 / Bad Request' )
+        log.debug( f'payload 400-4, ``{pprint.pformat(payload)}``' )
+        return HttpResponseBadRequest( '400 / Bad Request 4' )
 
     researcher_note = (
         payload.get( 'researcher_note', '' )

@@ -63,6 +63,7 @@ urlpatterns = [
     url( r'^data/person/all/$', views.data_person_all, name='data_person_all_url' ),
     url( r'^data/person/link-referents/$', views.data_person_link_referents, name='data_person_link_referents_url' ),
     url( r'^data/person/unlink-referent/$', views.data_person_unlink_referent, name='data_person_unlink_referent_url' ),
+    url( r'^data/person/(?P<person_uuid>.*)/link-referents/$', views.data_person_link_referent, name='data_person_link_referent_url' ),
 
     url( r'^data/entrants/details/(?P<rfrnt_id>.*)/$', views.data_entrants_details, name='data_entrants_details_url' ),
     url( r'^data/entrants/(?P<rfrnt_id>.*)/$', views.data_entrants, name='data_referent_url' ),

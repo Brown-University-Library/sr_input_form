@@ -11,6 +11,8 @@ from disa_app import settings_app
 log = logging.getLogger(__name__)
 
 
+"""TODO: Replace this with a DB stored procedure"""
+
 GET_ALL_PEOPLE_SQL = """
     SELECT
         people.uuid AS person_uuid,
@@ -70,6 +72,31 @@ def get_all_people() -> dict:
         connection.close()
 
 
+def link_referent_to_person(referent_uuid: str, person_uuid: str, by_value: str, researcher_note: str) -> dict:
+    """Links a referent to a person via the database stored procedure."""
+    log.debug('starting view_data_person_manager.link_referent_to_person()')
+    engine = create_engine(settings_app.DB_URL, echo=False)
+    connection = engine.raw_connection()
+    cursor = None
+    try:
+        cursor = connection.cursor()
+
+        log.debug('calling Unify_linkReferentToPerson')
+        cursor.callproc(
+            'Unify_linkReferentToPerson',
+            [referent_uuid, person_uuid, by_value, researcher_note],
+        )
+        connection.commit()
+        return {'person_uuid': person_uuid}
+    except Exception:
+        connection.rollback()
+        log.exception('problem calling Unify_linkReferentToPerson')
+        raise
+    finally:
+        if cursor is not None:
+            cursor.close()
+        connection.close()
+
 def link_referents(referent_uuid_1: str, referent_uuid_2: str, by_value: str, note: str) -> dict:
     """Unifies two referents into the same person via the database stored procedure."""
     log.debug('starting view_data_person_manager.link_referents()')
@@ -125,11 +152,18 @@ def unlink_referent(referent_uuid: str, by_value: str, note: str) -> dict:
             'Unify_unlinkReferentFromPerson',
             [referent_uuid, by_value, note],
         )
+        """ Return value: the Person-UUID of the unlinked Referent"""
+        """ NEW """
         person_uuid = None
-        for result in cursor.stored_results():
-            rows = result.fetchall()
-            if rows:
-                person_uuid = rows[0][0]
+
+        while True:
+            if cursor.description:
+                columns = [column[0] for column in cursor.description]
+                rows = cursor.fetchall()
+                if "person_uuid" in columns and rows:
+                    person_uuid = rows[0][columns.index("person_uuid")]
+
+            if not cursor.nextset():
                 break
         connection.commit()
         return {'person_uuid': person_uuid}
