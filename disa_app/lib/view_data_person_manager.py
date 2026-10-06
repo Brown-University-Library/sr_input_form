@@ -72,6 +72,47 @@ def get_all_people() -> dict:
         connection.close()
 
 
+def create_person(researcher_note: str = None) -> dict:
+    """Creates a Person without assigning Referents."""
+    log.debug('starting view_data_person_manager.create_person()')
+    engine = create_engine(settings_app.DB_URL, echo=False)
+    connection = engine.raw_connection()
+    cursor = None
+
+    try:
+        cursor = connection.cursor()
+        cursor.callproc('Unify_createPerson', [researcher_note])
+
+        person_uuid = None
+
+        # Read and consume all result sets returned by the procedure.
+        while True:
+            if cursor.description is not None:
+                columns = [column[0] for column in cursor.description]
+                rows = cursor.fetchall()
+
+                if 'person_uuid' in columns and rows:
+                    person_uuid = rows[0][columns.index('person_uuid')]
+
+            if not cursor.nextset():
+                break
+
+        if person_uuid is None:
+            raise RuntimeError('Unify_createPerson returned no Person UUID')
+
+        connection.commit()
+        return {'person_uuid': person_uuid}
+
+    except Exception:
+        connection.rollback()
+        log.exception('problem calling Unify_createPerson')
+        raise
+
+    finally:
+        if cursor is not None:
+            cursor.close()
+        connection.close()
+
 def link_referent_to_person(referent_uuid: str, person_uuid: str, by_value: str, researcher_note: str) -> dict:
     """Links a referent to a person via the database stored procedure."""
     log.debug('starting view_data_person_manager.link_referent_to_person()')

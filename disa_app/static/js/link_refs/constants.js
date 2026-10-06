@@ -26,6 +26,7 @@ export const API_ENDPOINTS = Object.freeze({
   REFERENT_LIST: "/browse.json",
   SAVE_PERSON_CHANGES: "/data/person/link-referents/",
   UNLINK_PERSON_REFERENT: "/data/person/unlink-referent/",
+  PERSON_CREATE: "/data/person/create/",
 });
 
 export const DEFAULT_STATE = Object.freeze({

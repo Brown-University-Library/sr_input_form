@@ -551,6 +551,27 @@ def data_person_all( request ):
     )
 
 @shib_login
+def data_person_create( request ):
+    """Creates a new person without assigning referents."""
+    log.debug( '\n\nstarting data_person_create()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid Method (must be POST)' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid JSON' )
+
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+
+    context: dict = view_data_person_manager.create_person( researcher_note )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
+
+
+@shib_login
 def data_person_link_referent( request, person_uuid: str ):
     """Links a referent to a person via the stored procedure."""
     log.debug( '\n\nstarting data_person_link_referent()' )

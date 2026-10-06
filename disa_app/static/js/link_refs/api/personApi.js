@@ -70,6 +70,17 @@ export async function getPersonByUuid(personUuid) {
   return people.find((person) => person.person_uuid === normalizedUuid) ?? null;
 }
 
+// Create a new Person with an optional researcher note
+// Returns the newly created Person object with its UUID and other details
+
+export async function createPerson(researcherNote = "") {
+  const payload = {
+    researcher_note: researcherNote,
+  };
+  const response = await fetchJson(API_ENDPOINTS.PERSON_CREATE, buildRequestOptions(payload));
+  return normalizePerson(response);
+}
+
 export function createPersonChangePayload({
   selectedPersonUuid,
   addReferents = [],
