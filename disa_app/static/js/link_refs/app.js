@@ -59,6 +59,13 @@ export class LinkRefsApp {
         this.goTo(VIEW_KEYS.SELECT_PERSON);
       },
 
+      onCreateNewPerson: () => {
+        const personUuid = null; // New person has no UUID yet
+        this.state = selectPersonAndOpenEditor(this.state, personUuid);
+        this.goTo(VIEW_KEYS.EDIT_PERSON);
+        this.render();
+      },
+
       onPersonDataChanged: (rows = []) => {
         this.state = {
           ...this.state,

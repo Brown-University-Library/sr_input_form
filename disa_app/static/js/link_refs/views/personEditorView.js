@@ -16,6 +16,7 @@ export class PersonEditorView {
     this.personUuidElem = qs(`#${SELECTOR_IDS.PERSON_UUID}`);
     this.saveStatusElem = qs(`#${SELECTOR_IDS.SAVE_STATUS_MESSAGE}`);
     this.changePersonButton = qs(`#${SELECTOR_IDS.CHANGE_PERSON_BUTTON}`);
+    this.newPersonButton_editView = qs(`#${SELECTOR_IDS.CREATE_NEW_PERSON_BUTTON_EDIT_VIEW}`);
 
     this.handlers = {};
     this.tables = {
@@ -27,11 +28,12 @@ export class PersonEditorView {
     this.handlePersonMembershipClick = this.handlePersonMembershipClick.bind(this);
   }
 
-  bindEvents({ onSaveChanges, onCancelChanges, onPersonDataChanged, onChangePerson }) {
+  bindEvents({ onSaveChanges, onCancelChanges, onPersonDataChanged, onChangePerson, onCreateNewPerson }) {
     this.handlers.onSaveChanges = onSaveChanges;
     this.handlers.onCancelChanges = onCancelChanges;
     this.handlers.onPersonDataChanged = onPersonDataChanged;
     this.handlers.onChangePerson = onChangePerson;
+    this.handlers.onCreateNewPerson = onCreateNewPerson;
 
     if (this.submitButton) {
       this.submitButton.addEventListener("click", () => {
@@ -48,6 +50,12 @@ export class PersonEditorView {
     if (this.changePersonButton) {
       this.changePersonButton.addEventListener("click", () => {
         this.handlers.onChangePerson?.();
+      });
+    }
+
+    if (this.newPersonButton_editView) {
+      this.newPersonButton_editView.addEventListener("click", () => {
+        this.handlers.onCreateNewPerson?.();
       });
     }
   }

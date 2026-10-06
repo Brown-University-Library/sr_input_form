@@ -19,6 +19,7 @@ export const SELECTOR_IDS = Object.freeze({
   CANCEL_PERSON_CHANGES: "cancel-person-changes",
   SAVE_STATUS_MESSAGE: "save-status-message",
   CHANGE_PERSON_BUTTON: "change-person",
+  CREATE_NEW_PERSON_BUTTON_EDIT_VIEW: "new-person-edit-view",
 });
 
 export const API_ENDPOINTS = Object.freeze({

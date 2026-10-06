@@ -73,7 +73,7 @@ export async function getPersonByUuid(personUuid) {
 // Create a new Person with an optional researcher note
 // Returns the newly created Person object with its UUID and other details
 
-export async function createPerson(researcherNote = "") {
+async function createPerson(researcherNote = "") {
   const payload = {
     researcher_note: researcherNote,
   };
