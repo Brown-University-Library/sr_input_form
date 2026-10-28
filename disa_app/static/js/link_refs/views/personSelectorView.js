@@ -14,7 +14,6 @@ export class PersonSelectorView {
   }
 
   render(data = []) {
-
     if (!this.root) {
       return;
     }
@@ -27,7 +26,9 @@ export class PersonSelectorView {
       return acc;
     }, {});
 
-    data = data.filter(referent => referentCountPerPerson[referent.person_uuid] > 1);
+    data = data.filter(
+      (referent) => referentCountPerPerson[referent.person_uuid] > 1,
+    );
 
     this.root.dataset.count = String(data.length);
 

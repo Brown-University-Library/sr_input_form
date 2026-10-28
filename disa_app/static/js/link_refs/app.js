@@ -51,7 +51,6 @@ export class LinkRefsApp {
     });
 
     this.views.personEditor.bindEvents({
-
       // Called when user clicks "Change Person" button in the Person Editor view
 
       onChangePerson: () => {
@@ -78,7 +77,6 @@ export class LinkRefsApp {
       // Called when user clicks "Save Changes" button in the Person Editor view
 
       onSaveChanges: async () => {
-
         // Create payload for saving person changes
 
         const personRows =
@@ -113,7 +111,7 @@ export class LinkRefsApp {
           linkTargetReferent,
           notes: this.state.notes ?? "",
           referentNotes: notesByReferentUUID,
-        }
+        };
 
         console.log("Payload for saving person changes:", payload);
 
@@ -125,7 +123,6 @@ export class LinkRefsApp {
         // Submit payload to API and handle response
 
         try {
-
           const personUuid = await savePersonChanges(payload);
 
           const [people, referents] = await Promise.all([
@@ -134,7 +131,7 @@ export class LinkRefsApp {
           ]);
 
           const peopleData = normalizePeopleGroups(people);
-                    
+
           this.state = loadInitialData(this.state, {
             peopleData,
             referentData: referents,

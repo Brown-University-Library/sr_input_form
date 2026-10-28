@@ -1,4 +1,3 @@
-
 export function getCsrfToken() {
   const cookieString = document.cookie || "";
 

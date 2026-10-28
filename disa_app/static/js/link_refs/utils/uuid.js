@@ -15,7 +15,9 @@ export function formatUuid(value) {
     hex.slice(12, 16),
     hex.slice(16, 20),
     hex.slice(20),
-  ].join("-").toLowerCase();
+  ]
+    .join("-")
+    .toLowerCase();
 }
 
 export function unformatUuid(value) {

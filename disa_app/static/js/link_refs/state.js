@@ -1,7 +1,6 @@
 import { DEFAULT_STATE, VIEW_KEYS } from "./constants.js";
 import { formatUuid } from "./utils/uuid.js";
 
-
 /*
 
   These functions are used to change the application state in a 
@@ -121,18 +120,23 @@ export function resetToActionView(currentState) {
 }
 
 export function selectPersonAndOpenEditor(currentState, personUuid) {
-
   let personData, normalizedPersonUuid;
 
   if (personUuid) {
     normalizedPersonUuid = formatUuid(personUuid);
-    personData = buildPersonData(currentState.peopleData ?? [], normalizedPersonUuid);
+    personData = buildPersonData(
+      currentState.peopleData ?? [],
+      normalizedPersonUuid,
+    );
   } else {
     normalizedPersonUuid = null;
     personData = [];
   }
 
-  const pendingAdds = buildAvailableReferents(currentState.referentData ?? [], personData);
+  const pendingAdds = buildAvailableReferents(
+    currentState.referentData ?? [],
+    personData,
+  );
 
   const withSelection = setSelectedPerson(currentState, normalizedPersonUuid);
   const withEditorData = {

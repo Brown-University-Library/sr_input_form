@@ -9,14 +9,18 @@ import {
 export class PersonEditorView {
   constructor() {
     this.personTableRoot = qs(`#${SELECTOR_IDS.PERSON_TABLE}`);
-    this.personTableChangeControllers = qs(`#${SELECTOR_IDS.PERSON_TABLE_CHANGE_CONTROLLERS}`);
+    this.personTableChangeControllers = qs(
+      `#${SELECTOR_IDS.PERSON_TABLE_CHANGE_CONTROLLERS}`,
+    );
     this.referentTableRoot = qs(`#${SELECTOR_IDS.REFERENT_TABLE}`);
     this.submitButton = qs(`#${SELECTOR_IDS.SUBMIT_PERSON_CHANGES}`);
     this.cancelButton = qs(`#${SELECTOR_IDS.CANCEL_PERSON_CHANGES}`);
     this.personUuidElem = qs(`#${SELECTOR_IDS.PERSON_UUID}`);
     this.saveStatusElem = qs(`#${SELECTOR_IDS.SAVE_STATUS_MESSAGE}`);
     this.changePersonButton = qs(`#${SELECTOR_IDS.CHANGE_PERSON_BUTTON}`);
-    this.newPersonButton_editView = qs(`#${SELECTOR_IDS.CREATE_NEW_PERSON_BUTTON_EDIT_VIEW}`);
+    this.newPersonButton_editView = qs(
+      `#${SELECTOR_IDS.CREATE_NEW_PERSON_BUTTON_EDIT_VIEW}`,
+    );
 
     this.handlers = {};
     this.tables = {
@@ -25,10 +29,17 @@ export class PersonEditorView {
     };
 
     this.handleReferentAddClick = this.handleReferentAddClick.bind(this);
-    this.handlePersonMembershipClick = this.handlePersonMembershipClick.bind(this);
+    this.handlePersonMembershipClick =
+      this.handlePersonMembershipClick.bind(this);
   }
 
-  bindEvents({ onSaveChanges, onCancelChanges, onPersonDataChanged, onChangePerson, onCreateNewPerson }) {
+  bindEvents({
+    onSaveChanges,
+    onCancelChanges,
+    onPersonDataChanged,
+    onChangePerson,
+    onCreateNewPerson,
+  }) {
     this.handlers.onSaveChanges = onSaveChanges;
     this.handlers.onCancelChanges = onCancelChanges;
     this.handlers.onPersonDataChanged = onPersonDataChanged;
@@ -61,7 +72,10 @@ export class PersonEditorView {
   }
 
   notifyPersonDataChanged() {
-    if (!this.tables.person || typeof this.tables.person.getData !== "function") {
+    if (
+      !this.tables.person ||
+      typeof this.tables.person.getData !== "function"
+    ) {
       return;
     }
 
@@ -98,7 +112,10 @@ export class PersonEditorView {
       (row) => formatUuid(row?.referent_uuid) !== targetUuid,
     );
 
-    const nextPersonRows = [...personRows, { ...rowData, membershipStatus: "added" }];
+    const nextPersonRows = [
+      ...personRows,
+      { ...rowData, membershipStatus: "added" },
+    ];
 
     personTable.setData(nextPersonRows);
     referentTable.setData(nextReferentRows);
@@ -121,7 +138,9 @@ export class PersonEditorView {
       return;
     }
 
-    const currentStatus = (rowData?.membershipStatus ?? "existing").toLowerCase();
+    const currentStatus = (
+      rowData?.membershipStatus ?? "existing"
+    ).toLowerCase();
     const allRows = [...(personTable.getData?.() ?? [])];
 
     if (currentStatus === "added") {
@@ -154,7 +173,6 @@ export class PersonEditorView {
   }
 
   render(state) {
-
     console.log("Rendering person editor view with state:", state);
 
     const truncateUuid = (value) => {
@@ -209,9 +227,12 @@ export class PersonEditorView {
       console.log("Table built, setting sort", this.setSort);
       this.setSort("displayName", "asc");
     }); */
-    
+
     if (!this.tables.person) {
-      console.log("*** Creating person table with initial data", state.personData);
+      console.log(
+        "*** Creating person table with initial data",
+        state.personData,
+      );
       this.tables.person = new window.Tabulator(this.personTableRoot, {
         data: (state.personData ?? []).map((row) => ({
           ...row,
@@ -226,11 +247,17 @@ export class PersonEditorView {
       // watch for table data changes so we can show/hide the save/cancel controllers
       if (typeof this.tables.person.on === "function") {
         // Tabulator: dataChanged is fired when the table data is modified
-        this.tables.person.on("dataChanged", () => this.notifyPersonDataChanged());
+        this.tables.person.on("dataChanged", () =>
+          this.notifyPersonDataChanged(),
+        );
         // additional events: rowAdded/rowDeleted/cellEdited can also change membership state
         this.tables.person.on("rowAdded", () => this.notifyPersonDataChanged());
-        this.tables.person.on("rowDeleted", () => this.notifyPersonDataChanged());
-        this.tables.person.on("cellEdited", () => this.notifyPersonDataChanged());
+        this.tables.person.on("rowDeleted", () =>
+          this.notifyPersonDataChanged(),
+        );
+        this.tables.person.on("cellEdited", () =>
+          this.notifyPersonDataChanged(),
+        );
       }
 
       // initial visibility based on initial table data
@@ -246,15 +273,15 @@ export class PersonEditorView {
       // update state and controllers after programmatic setData
       this.notifyPersonDataChanged();
     }
-
   }
 
   updateChangeControllersVisibility() {
-
     // lazy-resolve the controller element in case DOM wasn't present at construction time
     if (!this.personTableChangeControllers) {
       // prefer direct document lookup to avoid any scoping surprises
-      this.personTableChangeControllers = document.querySelector(`#${SELECTOR_IDS.PERSON_TABLE_CHANGE_CONTROLLERS}`);
+      this.personTableChangeControllers = document.querySelector(
+        `#${SELECTOR_IDS.PERSON_TABLE_CHANGE_CONTROLLERS}`,
+      );
     }
 
     // Determine whether any rows in the person table are marked added/removed
@@ -270,10 +297,14 @@ export class PersonEditorView {
     }
 
     const hasPending = rows.some(
-      (r) => (r?.membershipStatus ?? "existing") === "added" || (r?.membershipStatus ?? "existing") === "removed",
+      (r) =>
+        (r?.membershipStatus ?? "existing") === "added" ||
+        (r?.membershipStatus ?? "existing") === "removed",
     );
     // record that the function ran (useful for runtime checks in tests/dev)
-    try { this._lastChangeControllerUpdate = { when: Date.now(), hasPending }; } catch (e) {}
+    try {
+      this._lastChangeControllerUpdate = { when: Date.now(), hasPending };
+    } catch (e) {}
     setHidden(this.personTableChangeControllers, !hasPending);
   }
 
