@@ -156,7 +156,7 @@ export async function savePersonChanges(payload = {}) {
       buildRequestOptions({
         // referent_uuid: str, by_value: str, note: str
         referent_uuid: referentUuid,
-        note: researcherNote,
+        note: referentNotesByUuid[formatUuid(referentUuid)],
         // person_uuid: personUuid,
         // referent_uuid: referentUuid,
         // researcher_note: researcherNote,
