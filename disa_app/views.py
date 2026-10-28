@@ -22,6 +22,7 @@ from disa_app.lib import v_data_relationships_manager  # api/relationship-by-ref
 from disa_app.lib import view_browse_manager
 from disa_app.lib import view_data_entrant_manager  # api/referents
 from disa_app.lib import view_data_group_manager  # api/groups
+from disa_app.lib import view_data_person_manager  # api/person-link-referents
 from disa_app.lib import view_data_records_manager  # api/items
 from disa_app.lib import view_edit_record_manager
 from disa_app.lib import view_edit_relationship_manager
@@ -121,9 +122,9 @@ def timeline ( request ):
     return resp
 
 @shib_login
-def unify ( request ):
-    log.debug( '\n\nopening unify' )
-    resp = render( request, 'unify.html')
+def link_referents ( request ):
+    log.debug( '\n\nopening link_referents' )
+    resp = render( request, 'link_referents.html')
     return resp
 
 def source( request, src_id ):
@@ -533,6 +534,147 @@ def data_records( request, rec_id=None ):
         log.exception( 'problem handling request' )
     resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     db_session.close()
+    return resp
+
+
+@shib_login
+def data_person_all( request ):
+    """Returns all people and the primary names of their linked referents."""
+    log.debug( '\n\nstarting data_person_all()' )
+    if request.method != 'GET':
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    context: dict = view_data_person_manager.get_all_people()
+    return HttpResponse(
+        json.dumps(context, sort_keys=True, indent=2),
+        content_type='application/json; charset=utf-8',
+    )
+
+@shib_login
+def data_person_create( request ):
+    """Creates a new person without assigning referents."""
+    log.debug( '\n\nstarting data_person_create()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid Method (must be POST)' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid JSON' )
+
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+
+    context: dict = view_data_person_manager.create_person( researcher_note )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
+
+
+@shib_login
+def data_person_link_referent( request, person_uuid: str ):
+    """Links a referent to a person via the stored procedure."""
+    log.debug( '\n\nstarting data_person_link_referent()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid Method (must be POST)' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request – Invalid JSON' )
+
+    """person_uuid = payload.get( 'person_uuid', '' )"""
+    referent_uuid = payload.get( 'referent_uuid', '' )
+
+    if not person_uuid or not referent_uuid:
+        log.debug( f'payload 400-3, ``{pprint.pformat(payload)}``' )
+        log.debug( f'person_uuid, ``{person_uuid}``; referent_uuid, ``{referent_uuid}``' )
+        return HttpResponseBadRequest( '400 / Bad Request – requires person_uuid and referent_uuid' )
+
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+    """link_referent_to_person(referent_uuid: str, person_uuid: str, by_value: str, note: str)"""
+    context: dict = view_data_person_manager.link_referent_to_person(
+        referent_uuid,
+        person_uuid,
+        by_value,
+        researcher_note,
+    )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
+
+@shib_login
+def data_person_link_referents( request ):
+    """Links two referents to the same person via the stored procedure."""
+    log.debug( '\n\nstarting data_person_link_referents()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request 1' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request 2' )
+
+    referent_uuids = payload.get( 'referent_uuids', [] )
+
+    if not isinstance( referent_uuids, list ):
+        return HttpResponseBadRequest( '400 / Bad Request 3' )
+
+    if not referent_uuids or len(referent_uuids) < 2:
+        log.debug( f'payload 400-4, ``{pprint.pformat(payload)}``' )
+        return HttpResponseBadRequest( '400 / Bad Request 4' )
+
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+
+    context: dict = {}
+    primary_referent_uuid = referent_uuids[0]
+    for referent_uuid in referent_uuids[1:]:
+        context = view_data_person_manager.link_referents(
+            primary_referent_uuid,
+            referent_uuid,
+            by_value,
+            researcher_note,
+        )
+        if 'err' in context:
+            break
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
+    return resp
+
+@shib_login
+def data_person_unlink_referent( request ):
+    """Unlinks a referent from a person via the Unify_unlinkReferentFromPerson stored procedure."""
+    log.debug( '\n\nstarting data_person_unlink_referents()' )
+    if request.method != 'POST':
+        return HttpResponseBadRequest( '400 / Bad Request' )
+    try:
+        payload = json.loads( request.body.decode( 'utf-8' ) )
+    except (TypeError, ValueError, UnicodeDecodeError):
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    referent_uuid = payload.get( 'referent_uuid', '' )
+    
+    researcher_note = (
+        payload.get( 'researcher_note', '' )
+        or payload.get( 'note', '' )
+    )
+    if not referent_uuid:
+        return HttpResponseBadRequest( '400 / Bad Request' )
+
+    by_value = request.user.username or request.user.get_username() or str( request.user.id )
+
+    context: dict = view_data_person_manager.unlink_referent(
+        referent_uuid,
+        by_value,
+        researcher_note
+    )
+    resp = HttpResponse( json.dumps(context, sort_keys=True, indent=2), content_type='application/json; charset=utf-8' )
     return resp
 
 

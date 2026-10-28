@@ -41,7 +41,7 @@ urlpatterns = [
     url( r'^map/$', views.map, name='map_url' ),
     url( r'^timeline/$', views.timeline, name='timeline_url' ),
 
-    url( r'^unify/$', views.unify, name='unify_url' ),
+    url( r'^link_referents/$', views.link_referents, name='link_referents_url' ),
 
     # --------------------
     # redesign...
@@ -60,6 +60,11 @@ urlpatterns = [
     url( r'^data/records/$', views.data_records, name='data_record_url' ),  # note, 'refID' is passed on a PUT.
     url( r'^data/records/(?P<rec_id>.*)/$', views.data_records, name='data_record_url' ),  # note, 'refID' is passed on a PUT.
     url( r'^data/reference/(?P<rfrnc_id>.*)/$', views.data_reference, name='data_reference_url' ),
+    url( r'^data/person/all/$', views.data_person_all, name='data_person_all_url' ),
+    url( r'^data/person/create/$', views.data_person_create, name='data_person_create_url' ),
+    url( r'^data/person/link-referents/$', views.data_person_link_referents, name='data_person_link_referents_url' ),
+    url( r'^data/person/unlink-referent/$', views.data_person_unlink_referent, name='data_person_unlink_referent_url' ),
+    url( r'^data/person/(?P<person_uuid>.*)/link-referents/$', views.data_person_link_referent, name='data_person_link_referent_url' ),
 
     url( r'^data/entrants/details/(?P<rfrnt_id>.*)/$', views.data_entrants_details, name='data_entrants_details_url' ),
     url( r'^data/entrants/(?P<rfrnt_id>.*)/$', views.data_entrants, name='data_referent_url' ),

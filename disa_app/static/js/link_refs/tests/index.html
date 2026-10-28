@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Link Refs Tests</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+      }
+
+      .test-row {
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem 0;
+        border-radius: 4px;
+      }
+
+      .test-row.pass {
+        background: #e8f5e9;
+        color: #14532d;
+      }
+
+      .test-row.fail {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      #summary {
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
+
+      #summary.fail {
+        color: #991b1b;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Link Refs Test Results</h1>
+    <div id="summary">Running…</div>
+    <div id="results"></div>
+
+    <script type="module">
+      import { runTests } from "./test-runner.js";
+      import "./state.test.js";
+      import "./uuid.test.js";
+      import "./api.test.js";
+
+      runTests();
+    </script>
+  </body>
+</html>

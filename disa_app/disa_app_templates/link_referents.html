@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% load static %} 
+{% block header_other %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/css/tabulator_bootstrap5.min.css">
+<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@5/dist/js/tabulator.min.js"></script>
+{% endblock header_other %} 
+{% block content %}
+<!-- "Loading ..." modal -->
+{% include "modals/loading.html" %}
+<section class="" id="main-content">
+  <h1>Link Referents</h1>
+
+  <!-- Opening state: option buttons -->
+
+  <section class="state-select-action" hidden>
+    <div class="row">
+      <p>
+        <strong
+          >Use this page to indicate when two or more references in the source
+          documents refer to the same individual.</strong
+        >
+      </p>
+      <p>
+        In Stolen Relations, a <dfn>Referent</dfn> is a reference to a person
+        found in a source document. A <dfn>Person</dfn> represents the actual
+        individual to whom one or more Referents may refer.
+      </p>
+      <p>
+        For example, if two different records mention “Prince” and you determine
+        that both references describe the same individual, those two Referents
+        should be associated with (or <dfn>Linked to</dfn>) the same Person.
+      </p>
+    </div>
+    <div class="col-auto">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        id="create-new-person"
+      >
+        Create new Person
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        id="select-existing-person"
+      >
+        Edit existing Person
+      </button>
+    </div>
+  </section>
+
+  <!-- State: Select Person -->
+
+  <section class="state-select-person" hidden>
+    <h2>Select an existing Person to edit</h2>
+    <div id="existing-people-table"></div>
+  </section>
+
+  <!-- State: Move Referents to/from Person -->
+
+  <section class="state-edit-person" hidden>
+    <h2>
+      Edit Person
+      <abbr id="person-uuid" data-person-uuid="" title=""></abbr>
+      <button
+        class="btn btn-success btn-md"
+        id="change-person"
+        >
+      Change Person
+      </button>
+      <button
+        class="btn btn-success btn-md"
+        id="new-person-edit-view"
+        >
+      Create new Person
+      </button>
+    </h2>
+    <div class="row">
+      <p>Remove Referents from the Person by clicking on <i class='fa fa-user-minus'></i> in the <em>Person</em> table</p>
+      <p>Add Referents to the Person by clicking on <i class='fa fa-user-plus'></i> in the <em>Referents</em> table</p>
+      <p>Changes to the Person need to be documented in the <em>Notes</em> field; when ready, click <em>Save</em></p>
+      <p><span id="save-status-message" hidden></span></p>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="card">
+          <div class="card-header">
+            Person
+          </div>
+          <div class="card-body">
+            <div id="person-table"></div>
+            <div id="person-table-change-controllers" style="display:none">
+              <button
+                class="btn btn-success btn-md"
+                id="submit-person-changes"
+              >
+                Save
+              </button>
+              <button
+                class="btn btn-success btn-md"
+                id="cancel-person-changes"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table: Referents to add -->
+
+    <div class="container mt-4">
+      <div class="row">
+        <div class="card">
+          <div class="card-header">Referents to add</div>
+          <div class="card-body">
+            <div id="referent-table"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Submission form -->
+<!--
+    <form
+      id="link-referents-form"
+      class="row g-2 align-items-end col-sm-8 col-md-6"
+    >
+      <fieldset id="link-referents-form-fieldset" disabled>
+        <div>
+          <label class="form-label" for="researcher-note"
+            >Researcher notes</label
+          >
+          <input
+            class="form-control"
+            id="researcher-note"
+            name="researcher_note"
+            type="text"
+          />
+        </div>
+        <div class="col-auto">
+          <button
+            class="btn btn-success btn-md"
+            type="submit"
+            id="submit-link-referents"
+          >
+            Save unified referents
+          </button>
+          <span id="save-status-message" hidden></span>
+        </div>
+      </fieldset>
+    </form>-->
+  </section>
+</section>
+
+
+{% endblock content %} 
+{% block footer %} 
+{% include "partials/acknowledgements.html" %} 
+{% endblock footer %} 
+{% block page_specific_js %}
+<script type="text/javascript">
+  var DATA_URL = "{% static 'data/browse.json' %}";
+</script>
+<script type="module" src="{% static 'js/link_refs/index.js' %}"></script>
+{% endblock page_specific_js %}
