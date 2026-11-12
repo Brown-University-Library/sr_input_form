@@ -11,6 +11,7 @@ denormalized.json
 env
 migrations
 .venv
+disa_app/node_modules/*
 
 .env
 .env.*
