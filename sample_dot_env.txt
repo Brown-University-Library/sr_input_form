@@ -57,21 +57,9 @@ DISA_DJ__LOG_LEVEL="DEBUG"
 
 DISA_DJ__CSRF_TRUSTED_ORIGINS_JSON='["localhost", "127.0.0.1"]'
 
-## https://docs.djangoproject.com/en/1.11/topics/cache/
 ## - TIMEOUT is in seconds (0 means don't cache); CULL_FREQUENCY defaults to one-third
-DISA_DJ__CACHES_JSON='
-{
-  "default": {
-    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-    "LOCATION": "../cache_dir",
-    "TIMEOUT": 0,
-    "OPTIONS": {
-        "MAX_ENTRIES": 1000
-    }
-  }
-}
-'
-
+DISA_DJ__CACHE_PATH = "../cache_dir"
+DISA_DJ__CACHE_TIMEOUT = 0
 
 ## ============================================================================
 ## app

@@ -74,7 +74,7 @@ class DotenvSettingsTest(SimpleTestCase):
         self.assertEqual('example_secret_key', settings['secret'])
         self.assertEqual('../DBs/dj_disa.sqlite', settings['database']['default']['NAME'])
         self.assertEqual('mysql+pymysql://user:user@db:3306/stolenrelations', settings['url'])
-        self.assertEqual(26, len(settings['required']))
+        self.assertEqual(27, len(settings['required']))
         values = dotenv_values(stream=StringIO(sample))
         self.assertFalse(set(settings['required']) - set(values))
         for key, value in values.items():

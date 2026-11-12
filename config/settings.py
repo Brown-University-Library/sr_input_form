@@ -41,7 +41,8 @@ REQUIRED_ENVIRONMENT_KEYS = (
     'DISA_DJ__EMAIL_PORT',
     'DISA_DJ__LOG_PATH',
     'DISA_DJ__LOG_LEVEL',
-    'DISA_DJ__CACHES_JSON',
+    'DISA_DJ__CACHE_TIMEOUT',
+    'DISA_DJ__CACHE_PATH',
     'DISA_DJ__README_URL',
     'DISA_DJ__MAINTENANCE_MODE_JSON',
     'DISA_DJ__DENORMALIZED_JSON_URL',
@@ -232,6 +233,24 @@ LOGGING = {
     }
 }
 
+CACHE_TIMEOUT = int( os.environ.get('DISA_DJ__CACHE_TIMEOUT') )
+CACHE_PATH = Path(os.environ.get('DISA_DJ__CACHE_PATH'))
 
-## https://docs.djangoproject.com/en/1.11/topics/cache/
-CACHES = json.loads( os.environ['DISA_DJ__CACHES_JSON'] )
+# Ensure that cache path is an absolute path; if not, make it absolute relative to BASE_DIR
+# This is only important for local development where the cache is stored in a relative path. In production, the cache path is already absolute.
+if not os.path.isabs(CACHE_PATH):
+    CACHE_LOCATION = str((Path(BASE_DIR) / CACHE_PATH).resolve())
+else:
+    CACHE_LOCATION = CACHE_PATH
+
+CACHES = {
+  "default": {
+    "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+    "LOCATION": CACHE_LOCATION,
+    "TIMEOUT": CACHE_TIMEOUT,
+    "OPTIONS": {
+        "MAX_ENTRIES": 1000
+    }
+  }
+}
+

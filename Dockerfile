@@ -16,7 +16,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
     UV_PYTHON=3.8.20 \
-    PATH=/opt/venv/bin:$PATH
+    PATH=/opt/venv/bin:$PATH \
+    UV_OFFLINE=0
 
 ## Application working directory and writable data directories
 ## Relative paths in application settings and startup commands depend on this working directory.
